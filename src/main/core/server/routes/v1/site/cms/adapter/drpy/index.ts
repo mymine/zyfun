@@ -3,9 +3,11 @@ import { fork, ChildProcess } from 'child_process';
 import { resolve } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import treeKill from 'tree-kill';
+import logger from '@main/core/logger';
 
 let child: ChildProcess | null = null;
 const restart = (): void => {
+  logger.warn(`[t3][worker][restart] worker id:${uuidv4()}`);
   if (child) {
     child.removeAllListeners();
     treeKill(child.pid!, 'SIGTERM');
@@ -22,12 +24,12 @@ const doWork = (data: { [key: string]: string | object | null }): Promise<{ [key
     });
 
     child!.once('close', (code) => {
-      console.error(`[worker[T3Drpy][exit] code ${code}`);
+      logger.error(`[t3][worker][exit] code ${code}`);
       reject(new Error('Worker closed unexpectedly'));
     });
 
     child!.once('error', (err) => {
-      console.error(`[worker[T3Drpy][error] ${err.message}`);
+      logger.error(`[t3][worker][error] ${err.message}`);
       reject(err);
     });
 
@@ -120,6 +122,10 @@ class T3Adapter {
   async play(doc: { [key: string]: string }) {
     await this.getInstance();
     return await doWork({ type: 'play', data: doc });
+  }
+  async proxy(doc: { [key: string]: string }) {
+    await this.getInstance();
+    return await doWork({ type: 'proxy', data: doc });
   }
   async runMain(doc: { [key: string]: string }) {
     await this.getInstance();

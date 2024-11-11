@@ -25,7 +25,7 @@
         </t-tag>
       </template>
       <template #isActive="{ row }">
-        <t-switch v-model="row.isActive" @change="handleOpChange(!row.isActive ? 'disable' : 'enable', [row.id])" />
+        <t-switch v-model="row.isActive" :disabled="row.key === 'debug'"  @change="handleOpDefault(row.id)" />
       </template>
       <template #ext="{ row }">
         <span v-for="item in row.ext" :key="item.id">{{ item }}</span>
@@ -239,6 +239,11 @@ const reqDel = async (index) => {
   }
 };
 
+const handleOpDefault = async (id) => {
+  const item: any = tableConfig.value.data.find((item: any) => item.id === id);
+  handleOpChange(item.isActive ? 'enable' : 'disable', [id]);
+};
+
 const handleOpChange = async (type, doc) => {
   if (doc.length === 0 && ['enable', 'disable', 'delete'].includes(type)) {
     MessagePlugin.warning(t('pages.setting.message.noSelectData'));
@@ -261,6 +266,11 @@ const handleOpChange = async (type, doc) => {
   } else if (type === 'delete') {
     await reqDel(doc);
   } else if (type === 'default') {
+    const activeItem: any = tableConfig.value.data.find((item:any) => item.id === doc)
+    if (!activeItem || !activeItem.isActive) {
+      MessagePlugin.warning(t('pages.setting.message.defaultDisable'));
+      return;
+    };
     await reqDefault(doc);
   } else if (type === 'flag') {
     active.dialogFlag = true;

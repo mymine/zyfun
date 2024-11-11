@@ -52,7 +52,6 @@ const drpyWork = (parms) => {
       break;
     case 'proxy':
       res.data = proxy(data);
-      res.data = JSON.parse(res.data);
       break;
     case 'runMain':
       const { func, arg } = data;
@@ -65,7 +64,15 @@ const drpyWork = (parms) => {
 };
 
 process.on('message', (message: { [key: string]: any }) => {
-  console.log(`[worker[T3Drpy][arg]${process.argv[2]}`);
-  const res: any = drpyWork(message);
+  let res;
+  try {
+    res = drpyWork(message);
+  } catch (err: any) {
+    res = {
+      type: message.type,
+      data: null,
+    };
+    console.log(`[t3][worker][child][error]${err.message}`);
+  }
   process.send!(res);
 });

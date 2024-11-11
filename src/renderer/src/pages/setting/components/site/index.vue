@@ -17,7 +17,7 @@
         <span v-else>{{ row.name }}</span>
       </template>
       <template #isActive="{ row }">
-        <t-switch v-model="row.isActive" @change="handleOpChange(!row.isActive ? 'disable' : 'enable', [row.id])" />
+        <t-switch v-model="row.isActive" :disabled="row.key === 'debug'"  @change="handleOpDefault(row.id)" />
       </template>
       <template #type="{ row }">
         <span v-if="row.type === 0">T0[xml]</span>
@@ -36,9 +36,10 @@
         <t-space>
           <t-link theme="primary" @click="handleOpChange('default', slotProps.row.id)">{{ $t('pages.setting.table.default') }}</t-link>
           <t-link theme="primary" @click="handleOpChange('edit', slotProps.row)">{{ $t('pages.setting.table.edit') }}</t-link>
-          <t-popconfirm :content="$t('pages.setting.table.deleteTip')" @confirm="handleOpChange('delete', [slotProps.row.id])">
+          <t-popconfirm :content="$t('pages.setting.table.deleteTip')" @confirm="handleOpChange('delete', [slotProps.row.id])" v-if="slotProps.row.key !== 'debug'">
             <t-link theme="danger">{{ $t('pages.setting.table.delete') }}</t-link>
           </t-popconfirm>
+          <t-link theme="danger" :disabled="slotProps.row.key === 'debug'" v-else>{{ $t('pages.setting.table.delete') }}</t-link>
         </t-space>
       </template>
     </common-setting>
@@ -221,6 +222,11 @@ const reqDel = async (index) => {
   }
 };
 
+const handleOpDefault = async (id) => {
+  const item: any = tableConfig.value.data.find((item: any) => item.id === id);
+  handleOpChange(item.isActive ? 'enable' : 'disable', [id]);
+};
+
 const handleOpChange = async (type, doc) => {
   if (doc.length === 0 && ['enable', 'disable', 'delete'].includes(type)) {
     MessagePlugin.warning(t('pages.setting.message.noSelectData'));
@@ -250,6 +256,11 @@ const handleOpChange = async (type, doc) => {
   } else if (type === 'delete') {
     await reqDel(doc);
   } else if (type === 'default') {
+    const activeItem: any = tableConfig.value.data.find((item:any) => item.id === doc)
+    if (!activeItem || !activeItem.isActive) {
+      MessagePlugin.warning(t('pages.setting.message.defaultDisable'));
+      return;
+    };
     await reqDefault(doc);
   } else if (type === 'edit') {
     active.formType = 'edit';

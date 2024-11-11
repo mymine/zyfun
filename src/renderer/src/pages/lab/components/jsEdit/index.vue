@@ -210,10 +210,7 @@
                 @change="proxyEvent()"
                 v-if="form.nav === 'debug' && form.action === 'proxy'"
               >
-                <t-radio-button value="upload">{{
-                  $t('pages.lab.jsEdit.select.upload')
-                }}</t-radio-button>
-                <t-radio-button value="play">{{ $t('pages.lab.jsEdit.select.play') }}</t-radio-button>
+                <t-radio-button value="upload">{{ $t('pages.lab.jsEdit.select.upload') }}</t-radio-button>
                 <t-radio-button value="copy">{{ $t('pages.lab.jsEdit.select.copy') }}</t-radio-button>
               </t-radio-group>
               <t-radio-group
@@ -256,8 +253,10 @@ import { useSettingStore } from '@/store';
 import emitter from '@/utils/emitter';
 import { copyToClipboardApi } from '@/utils/tool';
 import { CodeEditor } from '@/components/code-editor';
-import { fetchJsEditPdfa, fetchJsEditPdfh, fetchJsEditMuban, fetchJsEditDebugInit } from '@/api/lab';
-import { fetchCmsHome, fetchCmsHomeVod, fetchCmsDetail, fetchCmsCategory, fetchCmsPlay, fetchCmsSearch, fetchCmsInit, fetchCmsRunMain, putSiteDefault } from '@/api/site';
+import { setT3Proxy } from '@/api/proxy';
+import { addSite, putSite } from '@/api/site'
+import { fetchJsEditPdfa, fetchJsEditPdfh, fetchJsEditMuban, fetchJsEditDebug } from '@/api/lab';
+import { fetchCmsHome, fetchCmsHomeVod, fetchCmsDetail, fetchCmsCategory, fetchCmsPlay, fetchCmsSearch, fetchCmsInit, fetchCmsRunMain, putSiteDefault, fetchCmsProxy } from '@/api/site';
 import reqHtml from '../reqHtml/index.vue';
 import drpySuggestions from './utils/drpy_suggestions';
 import drpyObjectInner from './utils/drpy_object_inner.ts?raw';
@@ -380,10 +379,43 @@ watch(
     logEditConf.value.theme = val === 'light' ? 'vs' : 'vs-dark';
   }
 );
+watch(
+  () => form.value.content.edit,
+  () => {
+    const currentTime = moment().unix();
+    form.value.lastEditTime.edit = currentTime;
+  }
+);
 
 onMounted(() => {
   getMuban();
+  getDebugData();
 });
+
+const getDebugData = async () => {
+  if (!debugId.value) {
+    const debugRes = await fetchJsEditDebug();
+    if (debugRes?.id) {
+      debugId.value = debugRes.id;
+      form.value.content.edit = debugRes.ext;
+    } else {
+      const siteRes = await addSite({
+        name: 'debug',
+        key: 'debug',
+        type: 7,
+        api: 'csp_DRPY',
+        search: true,
+        playUrl: '',
+        group: 'debug',
+        category: '',
+        ext: '',
+      });
+      if (Array.isArray(siteRes) && siteRes.length > 0 && siteRes[0].hasOwnProperty('id')) {
+        debugId.value = siteRes[0].id;
+      } else return;
+    };
+  };
+};
 
 const getMuban = async  () => {
   const res = await fetchJsEditMuban();
@@ -454,10 +486,10 @@ const exportFileEvent = async () => {
   }
 
   try {
-    await window.electron.ipcRenderer.send('tmpdir-manage', 'make', 'docs');
+    await window.electron.ipcRenderer.send('tmpdir-manage', 'make', 'file');
 
     const userDataPath = await window.electron.ipcRenderer.invoke('read-path', 'userData');
-    const defaultPath = await window.electron.ipcRenderer.invoke('path-join', userDataPath, `docs/${title}.js`);
+    const defaultPath = await window.electron.ipcRenderer.invoke('path-join', userDataPath, `file/${title}.js`);
     // const defaultPath = `${userDataPath}/file/js/${title}.js`;
     console.log(`[EditSource][exportFileEvent]path:${defaultPath}`);
 
@@ -487,12 +519,7 @@ const debugEvent = async () => {
       MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoData'));
       return;
     };
-    if (!debugId.value) {
-      const res = await fetchJsEditDebugInit({ doc: `${content}` });
-      if (Array.isArray(res) && res.length > 0 && res[0].hasOwnProperty('id')) {
-        debugId.value = res[0].id;
-      } else return;
-    };
+    await putSite({ ids: [debugId.value], doc: { ext: content } });
     await putSiteDefault(debugId.value);
     emitter.emit('refreshFilmConfig');
     router.push({ name: 'FilmIndex' });
@@ -510,10 +537,8 @@ const decodeEvent = async () => {
       return;
     };
     if (!debugId.value) {
-      const res = await fetchJsEditDebugInit({ doc: `${content}` });
-      if (Array.isArray(res) && res.length > 0 && res[0].hasOwnProperty('id')) {
-        debugId.value = res[0].id;
-      } else return;
+      MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoDebugId'));
+      return;
     };
 
     const res = await fetchCmsRunMain({
@@ -567,10 +592,8 @@ const changeNav = async (nav = '', action = '') => {
       return;
     };
     if (!debugId.value) {
-      const res = await fetchJsEditDebugInit({ doc: `${content}` });
-      if (Array.isArray(res) && res.length > 0 && res[0].hasOwnProperty('id')) {
-        debugId.value = res[0].id;
-      } else return;
+      MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoDebugId'));
+      return;
     };
     const res = await fetchCmsRunMain({
       func: "function main() {return getConsoleHistory()}",
@@ -591,21 +614,46 @@ const changeNav = async (nav = '', action = '') => {
 const performAction = async (type, requestData = {}) => {
   try {
     const content = form.value.content.edit;
+    // 1. 判断是否为空
     if (!content || content.trim().length === 0) {
       MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoData'));
       return;
     };
-    if (!debugId.value) {
-      const res = await fetchJsEditDebugInit({ doc: `${content}` });
-      if (Array.isArray(res) && res.length > 0 && res[0].hasOwnProperty('id')) {
-        debugId.value = res[0].id;
-      } else return;
+    // 2. 判断是否存在debugid
+    if (!debugId.value && type !== 'init') {
+      MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoDebugId'));
+      return;
     };
+    // 3. 不存在泽获取
+    if (!debugId.value && type === 'init') {
+      const debugRes = await fetchJsEditDebug();
+      if (debugRes?.id) {
+        debugId.value = debugRes.id;
+      } else {
+        const siteRes = await addSite({
+          name: 'debug',
+          key: 'debug',
+          type: 7,
+          api: 'csp_DRPY',
+          search: true,
+          playUrl: '',
+          group: 'debug',
+          category: '',
+          ext: content,
+        });
+        if (Array.isArray(siteRes) && siteRes.length > 0 && siteRes[0].hasOwnProperty('id')) {
+          debugId.value = siteRes[0].id;
+          await fetchCmsInit({ sourceId: siteRes[0].id, debug: true });
+        } else return;
+      };
+    };
+    // 4.自动初始化则上传并初始化
     if (type === 'init' || (form.value.lastEditTime.edit > form.value.lastEditTime.init && form.value.init.auto)) {
       const currentTime = moment().unix();
       form.value.lastEditTime.init = currentTime;
+      await putSite({ ids: [debugId.value], doc: { ext: content } });
       if (type !== 'init') {
-        await fetchCmsInit({ sourceId: debugId.value });
+        await fetchCmsInit({ sourceId: debugId.value, debug: true });
       };
     };
     const methodMap = {
@@ -616,6 +664,7 @@ const performAction = async (type, requestData = {}) => {
       'category': fetchCmsCategory,
       'search': fetchCmsSearch,
       'play': fetchCmsPlay,
+      'proxy': fetchCmsProxy,
       'log': fetchCmsRunMain,
     };
     const res = await methodMap[type](Object.assign({}, requestData, {sourceId: debugId.value}));
@@ -660,7 +709,7 @@ const actionRule = async (type) => {
 };
 
 const actionInit = async () => {
-  await performAction('init');
+  await performAction('init', { debug:true });
 };
 
 const actionHome = async () => {
@@ -748,7 +797,7 @@ const actionProxy = async () => {
       const formatUrl = `http://127.0.0.1:9978/proxy?do=js&url=${url}`;
       form.value.proxy.url = formatUrl;
       url = formatUrl;
-    }
+    };
     const formatUrl = new URL(url);
     const params = Object.fromEntries(formatUrl.searchParams.entries());
     await performAction('proxy', params);
@@ -769,10 +818,8 @@ const logEvent = async () => {
       return;
     };
     if (!debugId.value) {
-      const res = await fetchJsEditDebugInit({ doc: `${content}` });
-      if (Array.isArray(res) && res.length > 0 && res[0].hasOwnProperty('id')) {
-        debugId.value = res[0].id;
-      } else return;
+      MessagePlugin.warning(t('pages.lab.jsEdit.message.initNoDebugId'));
+      return;
     };
     await fetchCmsRunMain({
       func: "function main() { clearConsoleHistory(); return 'ok'}",
@@ -799,11 +846,12 @@ const proxyEvent = async () => {
 
     if (type === 'copy') {
       await copyToClipboardApi(form.value.proxy.url);
-    } else if (type === 'play') {
-      actionPlayer(form.value.proxy.url);
     } else if (type === 'upload') {
-      await setT3Proxy(jsonStr);
-    }
+      const url = form.value.proxy.url;
+      const formatUrl = new URL(url);
+      const params = Object.fromEntries(formatUrl.searchParams.entries());
+      await setT3Proxy({ text: jsonStr, url: params.url });
+    };
 
     MessagePlugin.info(`${t('pages.setting.data.success')}`);
   } catch (err) {
@@ -846,7 +894,7 @@ const handleOpChange = (type: string) => {
       window.electron.ipcRenderer.send('open-url', 'https://github.com/Hiram-Wong/ZyPlayer/wiki/%E5%86%99%E6%BA%90%E5%B7%A5%E5%85%B7');
       break;
     case 'file':
-      window.electron.ipcRenderer.send('open-path', 'docs', true);
+      window.electron.ipcRenderer.send('open-path', 'file', true);
       break;
     case 'debug':
       debugEvent();
@@ -1130,9 +1178,6 @@ const handleMonacoObject = (monaco) => {
           .input {
             width: 100%;
             margin-right: var(--td-comp-margin-s);
-          }
-
-          .button {
           }
 
           .w-btn {
