@@ -94,6 +94,4 @@ jobs:
           name: zyplayer-linux-arm64-AppImage
           path: |
             ./dist/*-arm64.AppImage
-          if-no-files-found: ignore          path: |
-            ./dist/*-arm64.AppImage
-          if-no-files-found: ignore
+          if-no-files-found: ignore      
