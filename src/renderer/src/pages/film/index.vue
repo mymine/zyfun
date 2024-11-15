@@ -13,28 +13,28 @@
         <div class="header-nav">
           <TitleMenu :list="classConfig.data" :active="active.class" @change-key="changeClassEvent" />
         </div>
-        <div v-if="filterData[active.class]" class="quick_item quick_filter">
-          <root-list-icon size="large" @click="isVisible.toolbar = !isVisible.toolbar" />
-        </div>
+        <t-button theme="default" shape="square" variant="text" v-if="filterData[active.class]" class="quick_filter">
+          <root-list-icon @click="isVisible.toolbar = !isVisible.toolbar" />
+        </t-button>
       </header>
-      <div class="container" :class="classConfig.data.length > 0 ? 'container-full' : 'container-hidden'">
-        <!-- 过滤工具栏 -->
-        <div v-show="isVisible.toolbar" class="filter header-wrapper">
-          <div class="tags">
-            <div v-for="filterItem in filterData[active.class]" :key="filterItem.key" class="tags-list">
-              <div class="item title">{{ filterItem.name }}</div>
-              <div class="wp">
-                <div v-for="item in filterItem.value" :key="item" class="item"
-                  :class="{ active: active.filter[filterItem.key] === item.v }" :label="item.n" :value="item.v"
-                  @click="changeFilterEvent(filterItem.key, item.v)">
-                  {{ item.n }}
-                </div>
+      <!-- 过滤工具栏 -->
+      <div v-show="isVisible.toolbar" class="filter header-wrapper">
+        <div class="tags">
+          <div v-for="filterItem in filterData[active.class]" :key="filterItem.key" class="tags-list">
+            <div class="item title">{{ filterItem.name }}</div>
+            <div class="wp">
+              <div v-for="item in filterItem.value" :key="item" class="item"
+                :class="{ active: active.filter[filterItem.key] === item.v }" :label="item.n" :value="item.v"
+                @click="changeFilterEvent(filterItem.key, item.v)">
+                {{ item.n }}
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div class="container">
         <div class="content-wrapper" id="back-top">
-          <t-row :gutter="[16, 16]" style="margin: 0;">
+          <t-row :gutter="[16, 4]" style="margin-left: -8px; margin-right: -8px">
             <t-col :md="3" :lg="3" :xl="2" :xxl="1" v-for="item in filmData.list" :key="item.vod_id" class="card"
               @click="playEvent(item)">
               <div class="card-main">
@@ -95,8 +95,7 @@
 import 'v3-infinite-loading/lib/style.css';
 import lazyImg from '@/assets/lazy.png';
 
-import differenceWith from 'lodash/differenceWith';
-import isEqual from 'lodash/isEqual';
+import differenceBy from 'lodash/differenceBy';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { RootListIcon } from 'tdesign-icons-vue-next';
 import InfiniteLoading from 'v3-infinite-loading';
@@ -182,12 +181,6 @@ const filmData = ref({
 
 const classConfig = ref({
   data: []
-});
-
-const tmp = ref({
-  class: '',
-  id: '',
-  search: ''
 });
 
 onMounted(() => {
@@ -319,7 +312,7 @@ const getFilmList = async (source) => {
       });
     };
     if (Array.isArray(res?.list) && res?.list.length > 0) {
-      const newFilms = differenceWith(res.list, filmData.value.list, isEqual);
+      const newFilms = differenceBy(res.list, filmData.value.list, 'vod_id');
       filmData.value.list = [...filmData.value.list, ...newFilms];
       filmData.value.rawList = [...filmData.value.rawList, ...res.list];
       pagination.value.pageIndex++;
@@ -400,48 +393,64 @@ const getSearchList = async () => {
 
   const index = searchGroup.indexOf(currentSite);
   const isLastSite = index + 1 >= searchGroup.length;
+  const filterStatus = siteConfig.value.filter === 'on';
 
   try {
-    // 没有搜索站点
-    if (!currentSite) {
-      console.log('[film][search] no search site');
+    // 1. 判断当前搜索的站点是否为空 || 超出站点
+    if (!currentSite || index + 1 > searchGroup.length) {
+      console.log('[film][search] no site or index out of bounds');
       return length;
     };
-    // 超出站点
-    if (index + 1 > searchGroup.length) {
-      console.log('[film][search] out of site');
-      return length;
-    }
 
+    // 2. 请求数据
     const res = await fetchCmsSearch({ sourceId: currentSite.id, wd: searchTxt.value, page: pg });
-    const resultSearch = res.list;
+    const resultSearch = res?.list;
 
     if (!Array.isArray(resultSearch) || resultSearch.length === 0) {
       console.log('[film][search] empty search results');
       // 聚搜过程中,如果某个站搜不出来结果，返回1让其他站继续搜索。单搜就返回0终止搜索
-      length = searchGroup.length > 1 ? 1 : 0;
+      if (isLastSite) {
+        length = 0;
+      } else {
+        length = 1;
+        searchCurrentSite.value = searchGroup[index + 1];
+      };
+      pagination.value.pageIndex = 1;
       return length;
     }
 
-    let resultDetail = siteConfig.value.filter === 'on' ? resultSearch.filter((item) => item?.vod_name.includes(searchTxt.value)) : resultSearch;
+    let resultDetail = filterStatus ? resultSearch.filter((item) => item?.vod_name.includes(searchTxt.value)) : resultSearch;
+    let newFilms = differenceBy(resultDetail, filmData.value.list, 'vod_id'); // 去重
+    if (newFilms.length > 0) {
+      newFilms = resultDetail.map(item => ({ ...item, relateSite: currentSite }));
+      filmData.value.list.push(...newFilms);
+    };
 
-    const filmList = resultDetail.map((item) => ({
-      ...item,
-      relateSite: currentSite
-    }));
-
-    const newFilms = differenceWith(filmList, filmData.value.list, isEqual); // 去重
-    filmData.value.list.push(...newFilms);
     // 最后一个站点，并且是聚搜，参与搜索的站点数大于1的情况，正常搜完一个就结束。只有一个站点正常搜索还要继续搜
-    length = isLastSite ? 0 : newFilms.length;
-    if (length > 0) pagination.value.pageIndex++;
+    if (isLastSite) {
+      length = 0;
+    } else {
+      if (newFilms.length > 0) {
+        length = newFilms.length;
+        pagination.value.pageIndex++;
+      } else {
+        length = 1;
+        searchCurrentSite.value = searchGroup[index + 1];
+        pagination.value.pageIndex = 1;
+      };
+    };
   } catch (err) {
+    console.log(err)
     // 聚搜的某一个站点发生错误,返回1让其他站点能继续搜索。只有一个站点进行搜索的时候发生错误就返回0终止搜索
-    length = isLastSite ? 0 : 1;
+    if (isLastSite) {
+      length = 0;
+    } else {
+      length = 1;
+      searchCurrentSite.value = searchGroup[index + 1];
+    };
     pagination.value.pageIndex = 1;
   } finally {
     console.log(`[film] load data length: ${length}`);
-    searchCurrentSite.value = isLastSite ? currentSite : searchGroup[index + 1];  // 更新当前搜索站点
     return length;
   }
 };
@@ -502,10 +511,8 @@ emitter.on('searchFilm', (data: any) => {
   const { kw, group, filter } = data;
   searchTxt.value = kw;
   siteConfig.value.filter = filter;
-  if (siteConfig.value.search !== group) {
-    siteConfig.value.search = group;
-    siteConfig.value.searchGroup = searchGroup(group, siteConfig.value.default);
-  };
+  if (siteConfig.value.search !== group)  siteConfig.value.search = group;
+  siteConfig.value.searchGroup = searchGroup(group, siteConfig.value.default);
   searchEvent();
 });
 
@@ -538,8 +545,6 @@ const changeConf = async (key: string) => {
     defaultConf();
     active.value.nav = key;
     siteConfig.value.default = siteConfig.value.data.find(item => item.id === key);
-    siteConfig.value.searchGroup = searchGroup(siteConfig.value.search, siteConfig.value.default);
-    console.log(siteConfig.value.searchGroup)
     active.value.infiniteType = 'noMore';
   } catch (err) {
     active.value.infiniteType = 'noData';
@@ -561,17 +566,17 @@ const changeConf = async (key: string) => {
     // width: calc(100% - 170px);
     min-width: 750px;
     position: relative;
-    padding: var(--td-comp-paddingTB-xs) var(--td-comp-paddingTB-s);
+    padding: var(--td-pop-padding-l);
     background-color: var(--td-bg-color-container);
     border-radius: var(--td-radius-default);
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: var(--td-size-4);
 
     .header {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
       justify-content: space-between;
       white-space: nowrap;
       flex-shrink: 0;
@@ -582,109 +587,121 @@ const changeConf = async (key: string) => {
         overflow: hidden;
       }
 
-      .quick_filter {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        margin-left: var(--td-comp-margin-s);
+      :deep(.t-button) {
+        &:not(.t-is-disabled):not(.t-button--ghost) {
+          --ripple-color: transparent;
+        }
       }
-    }
 
-    .container-full {
-      height: calc(100% - 58px);
-    }
+      :deep(.t-button__text) {
+        svg {
+          color: var(--td-text-color-placeholder);
+        }
+      }
 
-    .container-hidden {
-      height: 100%;
-    }
+      :deep(.t-button--variant-text) {
+        &:hover {
+          border-color: transparent;
+          background-color: transparent;
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      width: 100%;
-
-      .filter {
-        position: relative;
-        height: auto;
-        margin-bottom: 10px;
-        transition: height 0.3s;
-        width: 100%;
-
-        .tags {
-          width: 100%;
-
-          .tags-list {
-            padding-top: var(--td-comp-paddingTB-xs);
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
-
-            &:after {
-              clear: both;
-              display: block;
-              height: 0;
-              visibility: hidden;
-              content: '';
-            }
-
-            .title {
-              // float: left;
-              width: 50px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              text-align: left;
-              cursor: auto;
-              box-sizing: border-box;
-              height: 30px;
-              font-weight: 400;
-              font-size: 15px;
-              line-height: 30px;
-            }
-
-            .wp {
-              // float: left;
-              // width: calc(100% - 50px);
-              width: 100%;
-              overflow-y: auto;
-              white-space: nowrap;
-              flex-wrap: nowrap;
-              display: flex;
-              align-items: center;
-              justify-content: flex-start;
-              align-content: center;
-
-              &::-webkit-scrollbar {
-                height: 8px;
-                background: transparent;
-              }
-
-              .item {
-                display: block;
-                padding: 0 14px;
-                margin-right: 5px;
-                box-sizing: border-box;
-                height: 30px;
-                font-weight: 400;
-                font-size: 13px;
-                line-height: 30px;
-                text-align: center;
-                cursor: pointer;
-              }
-
-              .active {
-                height: 30px;
-                border-radius: 20px;
-                background: var(--td-bg-color-component);
-              }
+          .t-button__text {
+            svg {
+              color: var(--td-primary-color);
             }
           }
         }
       }
+
+      .quick_filter {
+        margin-right: -6px;
+      }
+    }
+
+    .filter {
+      position: relative;
+      height: auto;
+      transition: height 0.3s;
+      width: 100%;
+
+      .tags {
+        width: 100%;
+
+        .tags-list {
+          padding-top: var(--td-comp-paddingTB-xs);
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+
+          &:after {
+            clear: both;
+            display: block;
+            height: 0;
+            visibility: hidden;
+            content: '';
+          }
+
+          .title {
+            // float: left;
+            width: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left;
+            cursor: auto;
+            box-sizing: border-box;
+            height: 30px;
+            font-weight: 400;
+            font-size: 15px;
+            line-height: 30px;
+          }
+
+          .wp {
+            // float: left;
+            // width: calc(100% - 50px);
+            width: 100%;
+            overflow-y: auto;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            align-content: center;
+
+            &::-webkit-scrollbar {
+              height: 8px;
+              background: transparent;
+            }
+
+            .item {
+              display: block;
+              padding: 0 14px;
+              margin-right: 5px;
+              box-sizing: border-box;
+              height: 30px;
+              font-weight: 400;
+              font-size: 13px;
+              line-height: 30px;
+              text-align: center;
+              cursor: pointer;
+            }
+
+            .active {
+              height: 30px;
+              border-radius: 20px;
+              background: var(--td-bg-color-component);
+            }
+          }
+        }
+      }
+    }
+
+    .container {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
 
       .content-wrapper {
         overflow-y: auto;
@@ -711,7 +728,7 @@ const changeConf = async (key: string) => {
             width: 100%;
             height: 0;
             overflow: hidden;
-            border-radius: 7px;
+            border-radius: var(--td-radius-default);
             padding-top: 139.9%;
 
             .card-tag-orange {

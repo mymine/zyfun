@@ -33,7 +33,7 @@
             <t-input-number v-model="formData.timeout" theme="column" class="timeout-content"
               :placeholder="t('pages.setting.placeholder.general')"
               :style="{ width: '255px' }"
-              :min="3000"
+              :min="5000"
               :max="1000 * 60"
               @change="changeTimeoutEvent"
             />
@@ -156,7 +156,6 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
 import { CloseIcon } from 'tdesign-icons-vue-next';
 import { DialogPlugin, MessagePlugin } from 'tdesign-vue-next';
 import { computed, onMounted, onActivated, ref, watch, reactive } from 'vue';
@@ -244,7 +243,6 @@ const formData = ref({
   theme: 'auto',
   lang: 'zh_CN',
   defaultHot: 'kylive',
-  defaultSearchRecommend: 'site',
   defaultSearchType: 'site',
   defaultFilterType: 'off',
   defaultIptvEpg: 'https://epg.112114.eu.org/?ch={name}&date={date}',
@@ -299,27 +297,40 @@ const tmp = reactive({
   recordedSourceShortcut: ''
 });
 
-watch(theme, (newValue, _) => {
+watch(theme, (newValue) => {
   formData.value.theme = newValue;
-})
+});
 
-// 监听刷新film
-watch(
-  () => [
-    formData.value.defaultSearchType,
-    formData.value.defaultSearchRecommend,
-  ],
-  (_, oldValue) => {
-    if (oldValue.every((item) => typeof item !== 'undefined')) {
-      emitter.emit('refreshFilmConfig');
+watch(formData,
+  (newValue, _) => {
+    storeSetting.updateConfig({
+      mode: formData.value.theme,
+      webdev: formData.value.webdev,
+      timeout: formData.value.timeout < 5000 ? 5000 : formData.value.timeout
+    });
+    storePlayer.updateConfig({
+      setting: {
+        playerMode: formData.value.playerMode,
+        snifferMode: formData.value.snifferMode,
+        barrage: formData.value.barrage
+      },
+    } as any);
+    if (newValue) {
+      sourceSetting(newValue)
     }
   },
+  {
+    deep: true
+  }
 );
+
 
 // 监听刷新hot
 watch(
   () => [
     formData.value.defaultHot,
+    formData.value.defaultSearchType,
+    formData.value.defaultFilterType,
   ],
   (_, oldValue) => {
     if (oldValue.every((item) => typeof item !== 'undefined')) {
@@ -336,29 +347,6 @@ watch(
       emitter.emit('refreshIptvConfig');
     }
   },
-);
-
-watch(formData,
-  (newValue, _) => {
-    storeSetting.updateConfig({
-      mode: formData.value.theme,
-      webdev: formData.value.webdev,
-      timeout: formData.value.timeout < 1000 ? 1000 : formData.value.timeout
-    });
-    storePlayer.updateConfig({
-      setting: {
-        playerMode: formData.value.playerMode,
-        snifferMode: formData.value.snifferMode,
-        barrage: formData.value.barrage
-      },
-    } as any);
-    if (newValue) {
-      sourceSetting(newValue)
-    }
-  },
-  {
-    deep: true
-  }
 );
 
 onMounted(() => {
@@ -502,7 +490,7 @@ const getShortKeys = (_, event) => {
 // 判断快捷键是否合法
 const isLegalShortcut = (item) => {
   const specialKeys = ['Crl', 'Alt', 'Shift', 'Meta'];
-  const pubilcKeys = [
+  const publicKeys = [
     '=',
     '-',
     '~',
@@ -557,11 +545,11 @@ const isLegalShortcut = (item) => {
   let isPubilcKeys = false;
   let isSpecialKeys = false;
 
-  const keys = _.split(item, '+');
+  const keys = item.split('+');
 
-  _.forIn(keys, (e) => {
-    if (_.includes(specialKeys, e)) isSpecialKeys = true;
-    if (_.includes(pubilcKeys, e)) isPubilcKeys = true;
+  keys.forEach((key) => {
+    if (specialKeys.includes(key)) isSpecialKeys = true;
+    if (publicKeys.includes(key)) isPubilcKeys = true;
   });
   if (isPubilcKeys && isSpecialKeys) {
     statusShortcut.value = 'default';
@@ -602,7 +590,7 @@ const reset = (type: string) => {
   } else if (type === 'viewCasual') {
     formData.value.defaultViewCasual = 'http://api.yujn.cn/api/zzxjj.php';
   } else if (type === 'timeout') {
-    formData.value.timeout = 3000;
+    formData.value.timeout = 5000;
     window.electron.ipcRenderer.send('update-global', 'timeout', formData.value.timeout);
   }
 };
@@ -676,8 +664,8 @@ const flushDialogData = (item) => {
 };
 
 const changeTimeoutEvent = (item: number) => {
-  if (item < 3000 || item > 1000 * 60) {
-    formData.value.timeout = 3000;
+  if (item < 5000 || item > 1000 * 60) {
+    formData.value.timeout = 5000;
   };
   window.electron.ipcRenderer.send('update-global', 'timeout', formData.value.timeout);
 };
@@ -691,7 +679,8 @@ const refreshSetting = () => {
 <style lang="less" scoped>
 .setting-base-container {
   height: 100%;
-  padding: var(--td-comp-paddingTB-xs) var(--td-comp-paddingTB-xxl);
+  padding: 0 var(--td-comp-paddingLR-xxl);
+  overflow: auto;
 
   :deep(.t-radio-group.t-size-m .t-radio-button) {
     height: auto;
