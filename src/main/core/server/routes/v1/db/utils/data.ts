@@ -1,13 +1,30 @@
 import fs from 'fs-extra';
 import find from 'lodash/find';
+import JSON5 from 'json5';
 import { v4 as uuidv4, validate as uuidValidate, version as uuidVersion } from 'uuid';
 import { resolve } from 'url';
 import request from '@main/utils/request';
 import { base64 } from '@main/utils/crypto';
 import initSettingData from '@main/core/db/migration/modules/init/tbl_setting.json';
 
-// 一键配置
-const easyConfig = async (config, url, type) => {
+const easy2catvod = (config, url) => {
+  let data = {};
+  if (config?.video && config.video?.sites && config.video?.sites.length > 0) {
+    data['tbl_site'] = config.video.sites.map((item) => ({
+      id: item?.id || uuidv4(),
+      key: item?.key || uuidv4(),
+      name: item.name,
+      type: 8,
+      api: resolve(url, item.api),
+      group: 'catvod',
+      search: 1,
+      categories: '',
+    }));
+  }
+  return data;
+};
+
+const easy2tvbox = async (config, url, type) => {
   let data = {};
   let content = config;
 
@@ -155,6 +172,7 @@ const easyConfig = async (config, url, type) => {
         id: item?.id || uuidv4(),
         name: item.name,
         server: item.server,
+        showAll: item.showAll || false,
         startPage: item.startPage || '',
         search: !!item.search,
         headers: item.headers || null,
@@ -251,7 +269,7 @@ const commonDelImportData = (data) => {
             isActive: true,
           }));
         break;
-      case 'iptv':
+      case 'tbl_iptv':
         data[key] = data[key]
           .filter((item) => item?.name && item?.url)
           .map((item) => {
@@ -286,6 +304,7 @@ const commonDelImportData = (data) => {
               id: item?.id || uuidv4(),
               name: item?.name || '',
               server: item?.server || '',
+              showAll: item.showAll || false,
               startPage: item?.startPage || '',
               search: !!item.search,
               headers: item.headers || null,
@@ -379,18 +398,19 @@ const commonDelImportData = (data) => {
 const readData = async (path: string) => {
   let content: string = '';
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    content = await request({ url: path, method: 'GET' });
+    content = await request({ url: path, method: 'GET', responseType: 'text' });
   } else {
-    const resTxt: string = await fs.readFileSync(path, 'utf-8');
-    content = JSON.parse(resTxt);
+    content = await fs.readFileSync(path, 'utf-8');
   }
+  content = JSON5.parse(content);
   return content;
 };
 
 const importData = async (importType: string, remoteType: string, path: string) => {
   let content: any = await readData(path);
   if (importType === 'easy') {
-    content = easyConfig(content, path, remoteType);
+    if (remoteType === 'catvod') content = await easy2catvod(content, path);
+    else content = easy2tvbox(content, path, remoteType);
   }
 
   const formatData = commonDelImportData(content);

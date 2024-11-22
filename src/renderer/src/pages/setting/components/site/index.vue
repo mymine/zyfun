@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { MessagePlugin } from 'tdesign-vue-next';
-import { onActivated, onMounted, ref, reactive, watch, computed } from 'vue';
+import { onActivated, onMounted, ref, reactive, computed } from 'vue';
 
 import { t } from '@/locales';
 import { fetchSitePage, putSite, delSite, addSite, putSiteDefault } from '@/api/site';
@@ -109,17 +109,6 @@ const tableConfig = ref({
   default: '',
   group: []
 });
-
-watch(
-  () => tableConfig.value.rawData,
-  (_, oldValue) => {
-    if (oldValue.length > 0) {
-      emitter.emit('refreshFilmConfig');
-    }
-  }, {
-    deep: true
-  }
-);
 
 onMounted(() => {
   reqFetch(pagination.current, pagination.pageSize, searchValue.value);
@@ -241,7 +230,7 @@ const handleOpChange = async (type, doc) => {
       api: '',
       playUrl: '',
       group: '',
-      search: true,
+      search: 1,
       isActive: true,
       type: 1,
       ext: '',
@@ -273,9 +262,8 @@ const handleOpChange = async (type, doc) => {
 
   if (['enable', 'disable', 'delete', 'default'].includes(type)) {
     refreshTable();
+    emitter.emit('refreshFilmConfig');
   };
-
-  emitter.emit('refreshDriveConfig');
 };
 
 const handleDialogUpdate = async (type: string, doc: object) => {
@@ -288,6 +276,7 @@ const handleDialogUpdate = async (type: string, doc: object) => {
   };
 
   refreshTable();
+  emitter.emit('refreshFilmConfig');
 };
 
 const handleOpSearch = (value: string) => {

@@ -11,9 +11,11 @@
                 <t-radio-group v-model="formData.easyConfig.type" class="input-item">
                   <t-radio value="drpy">{{ $t('pages.setting.data.easyConfig.drpy') }}</t-radio>
                   <t-radio value="tvbox">{{ $t('pages.setting.data.easyConfig.tvbox') }}</t-radio>
+                  <t-radio value="catvod">{{ $t('pages.setting.data.easyConfig.catvod') }}</t-radio>
                 </t-radio-group>
                 <p v-if="formData.easyConfig.type === 'drpy'" class="tip">{{ $t('pages.setting.data.easyConfig.drpyTip') }}</p>
                 <p v-else-if="formData.easyConfig.type === 'tvbox'" class="tip">{{ $t('pages.setting.data.easyConfig.tvboxTip') }}</p>
+                <p v-else-if="formData.easyConfig.type === 'catvod'" class="tip">{{ $t('pages.setting.data.easyConfig.catvodTip') }}</p>
                 <t-input :label="$t('pages.setting.data.easyConfig.address')" v-model="formData.easyConfig.url"
                   class="input-item" :placeholder="$t('pages.setting.placeholder.general')"></t-input>
                 <t-popconfirm :content="$t('pages.setting.data.easyConfig.confirmTip')" placement="bottom"
@@ -300,10 +302,24 @@ const refreshEmitter = (arryList: string[]) => {
 // 配置导入
 const importData = async (importType) => {
   try {
+    let url, type;
+    if (importType === 'easy') {
+      url = formData.value.easyConfig.url;
+      type = formData.value.easyConfig.type;
+    } else {
+      url = formData.value.importData.url;
+      type = formData.value.importData.type;
+    };
+
+    if (!url) {
+      MessagePlugin.warning(t('pages.setting.data.noData'));
+      return;
+    };
+
     const res = await initDb({
-      url: importType === 'easy' ? formData.value.easyConfig.url : formData.value.importData.url,
+      url: url,
       importType,
-      remoteType: importType === 'easy' ? formData.value.easyConfig.type : formData.value.importData.type,
+      remoteType: type,
     });
     refreshEmitter(res?.table);
     MessagePlugin.success(t('pages.setting.data.success'));
