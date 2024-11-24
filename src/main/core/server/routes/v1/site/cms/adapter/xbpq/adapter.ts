@@ -921,10 +921,11 @@ class XbpqAdapter {
   }
   async init() {
     let res: string = this.source.ext;
-    if (this.source.ext.startsWith === 'http') {
+    if (this.source.ext.startsWith('http')) {
       res = await request({
         url: this.source.ext,
         method: 'GET',
+        responseType: 'text',
         headers: {
           'User-Agent': 'okhttp/4.12.0',
         },
@@ -1900,7 +1901,8 @@ class XbpqAdapter {
       url: input,
       js: this.rule.js,
       header: headers,
-      parse_extra: parse_extra,
+      // parse_extra: parse_extra,
+      parse_extra: p_exrta, // zy-use-hiker-module
     };
     // console.log(playobj);
 
