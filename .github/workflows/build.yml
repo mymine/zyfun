@@ -27,7 +27,7 @@ jobs:
         run: |
           #sed -i 's/&headers=${JSON.stringify(data.headers || {})}//g' src/renderer/src/utils/common/film.ts
           #sed -i 's#data.headers#//data.headers#g' src/renderer/src/utils/common/film.ts
-          sed -i 's/url.*`/url/g' src/renderer/src/components/player/index.vue
+          sed -i 's/url +=.*`/url/g' src/renderer/src/components/player/index.vue
         
       - name: Install Node.js
         uses: actions/setup-node@v4
