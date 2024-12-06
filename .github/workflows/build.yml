@@ -23,7 +23,7 @@ jobs:
           submodules: "recursive"
 
       - name: diy
-        if: matrix.os == 'Linux'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           #sed -i 's/&headers=${JSON.stringify(data.headers || {})}//g' src/renderer/src/utils/common/film.ts
           #sed -i 's#data.headers#//data.headers#g' src/renderer/src/utils/common/film.ts
