@@ -24,7 +24,9 @@ jobs:
 
       - name: diy
         if: runs-on == 'Linux'
-        run: sed -i 's/&headers=${JSON.stringify(data.headers || {})}//g' src/renderer/src/utils/common/film.ts
+        run: |
+          sed -i 's/&headers=${JSON.stringify(data.headers || {})}//g' src/renderer/src/utils/common/film.ts
+          sed -i 's#data.headers#//data.headers#g' src/renderer/src/utils/common/film.ts
         
       - name: Install Node.js
         uses: actions/setup-node@v4
