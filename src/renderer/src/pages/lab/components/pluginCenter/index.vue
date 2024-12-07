@@ -134,8 +134,7 @@ const handleItemClick = (name: string) => {
 }
 
 const handleGoDir = async() => {
-  const defaultPath = await window.electron.ipcRenderer.invoke('path-join', 'plugin', 'modules');
-  window.electron.ipcRenderer.send('open-path', defaultPath, true);
+  window.electron.ipcRenderer.send('open-path', 'plugin', true);
 }
 
 const handleControl = async (type: string, name: string) => {
@@ -149,7 +148,7 @@ const handleControl = async (type: string, name: string) => {
   if (!methodMap?.[type]) return;
 
   try {
-    const updatedPluginList = await methodMap[type]([{ name, isDev: true }]);
+    const updatedPluginList = await methodMap[type]([ name ]);
     const checkSuccess = () => {
       return type === 'uninstall' ? true : updatedPluginList && updatedPluginList.length > 0;
     };
@@ -169,7 +168,7 @@ const handleControl = async (type: string, name: string) => {
       } else {
         const updateIndex = pluginList.value.findIndex(p => p.name === name);
         if (updateIndex > -1) {
-          pluginInfo.value[updateIndex] = updatedPluginList[0];
+          pluginList.value[updateIndex] = updatedPluginList[0];
           pluginInfo.value = updatedPluginList[0];
         }
       }
