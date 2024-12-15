@@ -1,14 +1,12 @@
-import _ from 'lodash';
 import { JSONPath } from 'jsonpath-plus';
 import { putHistory, findHistory, addHistory } from '@/api/history';
 import { setT3Proxy } from '@/api/proxy';
 import { fetchConfig } from '@/api/setting';
-
 import { findStar, addStar, delStar, putStar } from '@/api/star';
 import { fetchRecommPage, fetchCmsDetail, fetchCmsSearch, fetchCmsPlay, fetchCmsProxy } from '@/api/site';
-
+import { hash } from '@/utils/crypto';
 import sniffer from '@/utils/sniffer';
-import { checkMediaType } from '@/utils/tool';
+import { mediaUtils } from '@/components/player';
 
 // 官解地址
 const VIP_LIST = [
@@ -31,18 +29,23 @@ const VIP_LIST = [
  * @returns { status: boolean, data: any }
  */
 const fetchBingeData = async (relateId: string, videoId: number): Promise<{ status: boolean; data: any }> => {
+  console.log('[film_common][fetchBingeData][start]收藏获取流程开启');
+  let data = {
+    status: false,
+    data: {},
+  };
   try {
     const response = await findStar({ relateId, videoId });
-    return {
-      status: Boolean(response), // 直接转换为布尔值
-      data: response || {}, // 如果response存在则使用response，否则使用空对象
+    data = {
+      status: !!response,
+      data: response || {},
     };
+    console.log(`[film_common][fetchBingeData][return]`, data);
   } catch (err) {
-    console.error(`[film_common][fetchBingeData]`, err); // 更详细的错误日志
-    return {
-      status: false,
-      data: {},
-    };
+    console.error(`[film_common][fetchBingeData][error]`, err);
+  } finally {
+    console.log(`[film_common][fetchBingeData][end]收藏获取流程结束`);
+    return data;
   }
 };
 
@@ -54,6 +57,11 @@ const fetchBingeData = async (relateId: string, videoId: number): Promise<{ stat
  * @returns { status: boolean, data: any }
  */
 const putBingeData = async (action: string, id: any = null, doc: any = {}): Promise<{ status: boolean; data: any }> => {
+  console.log('[film_common][putBingeData][start]收藏更新流程开启');
+  let data = {
+    status: false,
+    data: {},
+  };
   try {
     let res = {};
     if (action === 'add') {
@@ -63,16 +71,16 @@ const putBingeData = async (action: string, id: any = null, doc: any = {}): Prom
     } else if (action === 'update') {
       res = await putStar({ ids: [id], doc });
     }
-    return {
+    data = {
       status: true,
       data: res,
     };
+    console.log(`[film_common][putBingeData][return]`, data);
   } catch (err) {
-    console.error(`[film_common][putBingeData]`, err);
-    return {
-      status: false,
-      data: {},
-    };
+    console.error(`[film_common][putBingeData][error]`, err);
+  } finally {
+    console.log(`[film_common][putBingeData][end]收藏更新流程结束`);
+    return data;
   }
 };
 
@@ -184,7 +192,7 @@ const playHelper = async (
   console.log(`[film_common][playHelper][before_start]准备处理地址:${url}`);
   console.log(`[film_common][playHelper][start]播放处理流程开始`);
 
-  let data = { url: '', originalUrl: url, mediaType: '', headers: {} };
+  let data: { [key: string]: any } = { url: '', originalUrl: url, mediaType: '', headers: {} };
 
   try {
     // 1. 解析
@@ -225,7 +233,7 @@ const playHelper = async (
         await setT3Proxy({ text: proxyData, url: proxyParams.url });
       }
 
-      const mediaType = await checkMediaType(play.url);
+      const mediaType = await mediaUtils.checkMediaType(play.url);
       if (mediaType !== 'unknown' && mediaType !== 'error') {
         data = { ...data, url: play.url, mediaType, headers: play.headers };
         return data;
@@ -243,7 +251,7 @@ const playHelper = async (
     );
     data.headers = snifferResult.headers;
     data.url = snifferResult.url;
-    data.mediaType = (await checkMediaType(snifferResult.url)) || 'm3u8';
+    data.mediaType = (await mediaUtils.checkMediaType(snifferResult.url)) || 'm3u8';
   } catch (err) {
     console.error(`[film_common][playHelper][error]`, err);
   } finally {
@@ -452,42 +460,44 @@ const formatReverseOrder = (action: 'positive' | 'negative', current: number, to
  */
 const fetchBarrageData = async (
   realUrl: string,
-  options: { url: string, key: string, support: string[], start: number, mode: number, color: number, content: number },
+  options: { url: string, id: string | number, key: string, support: string[], start: number, mode: number, color: number, content: number },
   active: { flimSource: string, filmIndex: string },
-): Promise<any[]> => {
+): Promise<{ barrage: string[], id: string | number | null }> => {
   console.log('[film_common][fetchBarrageData][start]获取弹幕流程开启');
-  let data: any = [];
+  let data: any = { barrage: [], id: null };
 
   try {
-    if (!/^(http:\/\/|https:\/\/)/.test(realUrl)) return [];
+    if (!realUrl || !/^(https?:\/\/)/.test(realUrl)) return data;
     // 去除参数
     const { origin, pathname, hostname } = new URL(realUrl);
     realUrl = `${origin}${pathname}`;
   
     const { flimSource } = active;
-    const { url, key, support, start, mode, color, content } = options;
+    const { url, id, key, support, start, mode, color, content } = options;
 
     // 分组条件
-    const isValidUrl = typeof url === 'string' && /^(http:\/\/|https:\/\/)/.test(url);
-    const hasValidKey = typeof key === 'string' && key.length > 0;
-    const hasValidSupport = (Array.isArray(support) && support.length > 0 && support.includes(flimSource)) || VIP_LIST.some((domain) => hostname.includes(domain));
-    const hasValidNumbers = [start, mode, color, content].every(value => typeof value === 'number');
+    const isValidUrl = typeof url === 'string' && /^(https?:\/\/)/.test(url);
+    const isValidId = id && ['string', 'number'].includes(typeof id);
+    const isValidKey = typeof key === 'string' && key.length > 0;
+    const isValidSupport = (Array.isArray(support) && support.length > 0 && support.includes(flimSource)) || VIP_LIST.some((domain) => hostname.includes(domain));
+    const isValidNumbers = [start, mode, color, content].every(value => typeof value === 'number');
     // 综合判断
-    if (!(isValidUrl && hasValidKey && hasValidSupport && hasValidNumbers)) return [];
-
-    const res = await fetchConfig({ url: `${url}${realUrl}`, method: 'GET' });
-    const barrageRes = res.data?.[key] || [];
-    if (!Array.isArray(barrageRes) || barrageRes.length === 0) return [];
-
-    const formatBarrage: any[] = barrageRes.map((item) => ({
-      text: item[content],
-      time: parseInt(item[start]),
-      color: item[color],
-      border: false,
-      mode: item[mode],
-    }));
-    data = formatBarrage;
-
+    if (isValidUrl && isValidId && isValidKey && isValidSupport && isValidNumbers) {
+      const res = await fetchConfig({ url: `${url}${realUrl}`, method: 'GET' });
+      let formatId = res.data?.[id] || null;
+      if (formatId && /^(https?:\/\/)/.test(formatId)) formatId = hash['md5-16'](formatId);
+      const barrageRes = res.data?.[key] || [];
+      if (Array.isArray(barrageRes) && barrageRes.length !== 0) {
+        const formatBarrage: any[] = barrageRes.map((item) => ({
+          text: item[content],
+          time: parseInt(item[start]),
+          color: item[color],
+          mode: item[mode],
+        }));
+        data = { barrage: formatBarrage, id: formatId };
+      }
+    }
+    console.log(`[film_common][fetchBarrageData][return]`, data);
   } catch (err) {
     console.log(`[film_common][fetchBarrageData][error]`, err);
   } finally {
@@ -504,15 +514,16 @@ const fetchBarrageData = async (
  */
 const fetchAnalyzeHelper = async (url: string, type: number) => {
   console.log('[film_common][fetchAnalyzeHelper][start]获取解析流程开启');
-  let data = { url: '', originalUrl: url, mediaType: '', headers: {} };
+  let data: { [key: string]: any } = { url: '', originalUrl: url, mediaType: undefined, headers: {} };
 
   try {
     const play = { playUrl: '', headers: {} };
 
     if (type == 1) {
       const resOfficial = await fetchConfig({ url, method: 'GET' });
-      if (JSONPath({ path: '$.url', json: resOfficial }).length > 0) {
-        play.playUrl = JSONPath({ path: '$.url', json: resOfficial })[0];
+      const paeseOfficial = JSONPath({ path: '$.url', json: resOfficial.data });
+      if (paeseOfficial.length > 0) {
+        play.playUrl = paeseOfficial[0];
         play.headers = resOfficial.headers;
       }
     } else if (type == 0) {
@@ -524,13 +535,13 @@ const fetchAnalyzeHelper = async (url: string, type: number) => {
     }
 
     if (play.playUrl) {
-      const mediaType = await checkMediaType(play.playUrl);
+      const mediaType = await mediaUtils.checkMediaType(play.playUrl);
       if (mediaType !== 'unknown' && mediaType !== 'error') {
         data = { url: play.playUrl, originalUrl: url, mediaType, headers: play.headers };
       }
     }
-  } catch (err: any) {
-    console.log(`[film_common][fetchAnalyzeHelper][error]${err.message}`);
+  } catch (err) {
+    console.error(`[film_common][fetchAnalyzeHelper][error]`, err);
   } finally {
     console.log(`[film_common][fetchAnalyzeHelper][end]获取解析流程结束`);
     return data;
