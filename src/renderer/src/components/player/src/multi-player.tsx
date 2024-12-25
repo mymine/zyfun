@@ -17,41 +17,29 @@ const MultiPlayer = defineComponent({
       xgplayer: XgPlayerAdapter,
     };
 
-    const formatUrlHeaders = (url: string, headers: { [key: string]: string }) => {
-      if (headers) {
-        for (const key in headers) {
-          url += `@${key}=${headers[key]}`;
-        }
-      }
-      return url;
-    };
-
-    const formatRemoveUnSafeHeaders = (headers: { [key: string]: string }) => {
-      const unsafeHeads = ['host', 'referer', 'origin', 'user-agent', 'content-length', 'set-cookie'];
-
-      for (const key in headers) {
-        if (unsafeHeads.includes(key.toLowerCase())) delete headers[key];
-      }
-
-      return headers;
-    };
-
     const create = async (doc: { [key: string]: any }, type: string = 'artplayer') => {
       if (!doc?.url) return;
       if (!Object.keys(adapterRelation).includes(type)) return;
+
       if (adapter.value) await destroy();
       const singleAdapter = singleton(adapterRelation?.[type]);
       adapter.value = new singleAdapter();
 
       if (mseRef.value) mseRef.value.id = doc.container;
+      if (!doc.headers) doc.headers = {};
       if (!doc.type) {
-        const checkType = await mediaUtils.checkMediaType(doc.url);
+        const checkType = await mediaUtils.checkMediaType(doc.url, doc.headers);
         if (checkType === 'unknown' && !checkType) return;
         doc.type = checkType;
       }
-      doc.url = formatUrlHeaders(doc.url, doc.headers);
       doc.type = mediaUtils.mediaType2PlayerType(doc.type);
-      doc.headers = formatRemoveUnSafeHeaders(doc.headers);
+      // hls 使用 Electron标识 拦截 其他 使用 url @kay 拦截
+      if (doc.type !== 'customHls') {
+        doc.url = mediaUtils.formatUrlHeaders(doc.url, doc.headers);
+        doc.headers = mediaUtils.formatRemoveUnSafeHeaders(doc.headers);
+      } else {
+        doc.headers = mediaUtils.formatWeb2electronHeaders(doc.headers);
+      }
       await adapter.value.create(toRaw(doc));
     };
 

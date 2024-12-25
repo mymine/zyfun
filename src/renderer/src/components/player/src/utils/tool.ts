@@ -86,6 +86,49 @@ const singleton = <T extends new (...args: any[]) => any>(className: T): T => {
 };
 
 const mediaUtils = (() => {
+  const formatUrlHeaders = (url: string, headers: { [key: string]: string } = {}) => {
+    if (headers && Object.keys(headers).length > 0) {
+      for (const key in headers) {
+        let valye = headers[key];
+        if (valye.includes('=')) valye = valye.replaceAll('=', '$*&');
+        url += `@${key}=${valye}`;
+      }
+    }
+    return url;
+  };
+
+  const formatRemoveUnSafeHeaders = (headers: { [key: string]: string }) => {
+    const unsafeHeads = ['host', 'referer', 'origin', 'user-agent', 'content-length', 'set-cookie', 'cookie'];
+
+    for (const header in headers) {
+      if (unsafeHeads.includes(header.toLowerCase())) delete headers[header];
+    }
+
+    return headers;
+  };
+
+  const formatWeb2electronHeaders = (headers: { [key: string]: string }) => {
+    const unsafeHeads = new Set(['Host', 'Referer', 'Origin', 'User-Agent', 'Content-Length', 'Set-Cookie', 'Cookie']);
+
+    const capitalizeHeader = (header: string) =>
+      header
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('-');
+
+    return Object.entries(headers).reduce((formattedHeaders, [key, value]) => {
+      const capitalizedHeader = capitalizeHeader(key);
+
+      // 检查是否为不安全头并进行重命名
+      const finalHeader = unsafeHeads.has(capitalizedHeader) ? `Electron-${capitalizedHeader}` : capitalizedHeader;
+
+      // 添加到结果对象
+      formattedHeaders[finalHeader] = value;
+      return formattedHeaders;
+    }, {} as { [key: string]: string });
+  };
+
+
   // 支持的媒体格式映射
   const supportedFormats: Record<string, string> = {
     'video/mp4': 'mp4',
@@ -109,12 +152,13 @@ const mediaUtils = (() => {
 
   // 视频类型与播放器映射
   const videoTypeMap: Record<string, string> = {
-    mp4: 'customMp4',
+    mp4: 'customMpegts',
     flv: 'customFlv',
     m3u8: 'customHls',
     mpd: 'customDash',
     magnet: 'customWebTorrent',
     mp3: 'customMpegts',
+    mkv: 'customMpegts',
     m4a: 'customMpegts',
     wav: 'customMpegts',
     flac: 'customMpegts',
@@ -148,9 +192,9 @@ const mediaUtils = (() => {
   };
 
   // 使用 fetch 获取媒体类型
-  const getMediaType = async (url: string): Promise<string | undefined> => {
+  const getMediaType = async (url: string, headers: { [key: string]: any }): Promise<string | undefined> => {
     try {
-      const response = await requestComplete({ url, method: 'HEAD', timeout: 5000 });
+      const response = await requestComplete({ url, method: 'HEAD', timeout: 5000, headers: formatWeb2electronHeaders(headers) });
       if (response.status === 200) {
         const contentType = response.headers['content-type'] || '';
         return mapContentTypeToFormat(contentType);
@@ -163,11 +207,11 @@ const mediaUtils = (() => {
   };
 
   // 检查媒体类型
-  const checkMediaType = async (url: string): Promise<string | undefined> => {
-    if (!url || !(/^(https?:\/\/)/.test(url) || url.startsWith('magnet:'))) return undefined; 
+  const checkMediaType = async (url: string, headers: { [key: string]: any }): Promise<string | undefined> => {
+    if (!url || !(/^(https?:\/\/)/.test(url) || url.startsWith('magnet:'))) return undefined;
 
     const fileType = supportedFormatsLookup(url);
-    return fileType || (await getMediaType(url));
+    return fileType || (await getMediaType(url, headers));
   };
 
   // 映射视频类型到播放器类型
@@ -179,6 +223,9 @@ const mediaUtils = (() => {
   return {
     checkMediaType,
     mediaType2PlayerType,
+    formatRemoveUnSafeHeaders,
+    formatUrlHeaders,
+    formatWeb2electronHeaders,
   };
 })();
 
