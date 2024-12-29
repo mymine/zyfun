@@ -19,18 +19,26 @@ class T0Adapter {
   constructor(source) {
     this.api = source.api;
     this.playurl = source.playurl;
-    this.categoryfilter = source.categories.split(/[,，]/).map((category) => category.trim());
+    this.categoryfilter = source.categories ? source.categories.split(/[,，]/).map((category) => category.trim()) : [];
   }
 
   async init() {}
   async home() {
-    const response = await request({
-      url: this.api,
-      method: 'GET',
-      params: {
-        ac: 'class',
-      },
-    });
+    let response;
+    try {
+      response = await request({
+        url: this.api,
+        method: 'GET',
+        params: {
+          ac: 'class',
+        },
+      });
+    } catch {
+      response = await request({
+        url: this.api,
+        method: 'GET',
+      });
+    };
     const xml2json = parser.parse(response);
     const data = xml2json?.rss?.class;
     const classList = Array.isArray(data?.ty) ? data.ty : [data?.ty];
@@ -66,13 +74,20 @@ class T0Adapter {
   }
   async homeVod() {
     let response;
-    response = await request({
-      url: this.api,
-      method: 'GET',
-      params: {
-        ac: 'class',
-      },
-    });
+    try {
+      response = await request({
+        url: this.api,
+        method: 'GET',
+        params: {
+          ac: 'class',
+        },
+      });
+    } catch {
+      response = await request({
+        url: this.api,
+        method: 'GET',
+      });
+    };
 
     const xml2json = parser.parse(response);
     const data = xml2json?.rss?.list;
