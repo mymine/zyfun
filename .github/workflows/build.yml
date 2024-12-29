@@ -30,7 +30,7 @@ jobs:
           #sed -i 's/url +=.*`/url/g' src/renderer/src/components/player/index.vue
           #sed -i 's#\@${key}=#\&${key}=#g'  src/renderer/src/components/player/index.vue
           sum=$(sed -n "/首页/=" src/renderer/src/pages/film/index.vue)
-          sed -i '$((num -3)),$((num +1))d' src/renderer/src/pages/film/index.vue
+          sed -i "$((num -2)),$((num +1))d" src/renderer/src/pages/film/index.vue
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
