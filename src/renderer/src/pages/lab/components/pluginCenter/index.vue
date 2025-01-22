@@ -332,6 +332,7 @@ const handleOpChange = (type:string) => {
           background-color: var(--td-bg-content-input-2);
           border-color: transparent;
         }
+
         .t-select__wrap {
           width: fit-content;
           position: relative;
@@ -421,6 +422,13 @@ const handleOpChange = (type:string) => {
         }
       }
     }
+
+    .data-dialog-container {
+      :deep(.t-input) {
+        background-color: var(--td-bg-content-input-2);
+        border-color: transparent;
+      }
+    }
   }
 
   .content {
@@ -449,6 +457,7 @@ const handleOpChange = (type:string) => {
         flex-direction: row;
         gap: var(--td-size-8);
         align-items: center;
+        margin: auto 0;
 
         .icon_wrapper {
           position: relative;
@@ -485,6 +494,7 @@ const handleOpChange = (type:string) => {
             gap: var(--td-size-4);
             align-items: flex-end;
             flex-direction: row;
+            margin: 0;
 
             .name {
               font-size: 20px;
