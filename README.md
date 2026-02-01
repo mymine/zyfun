@@ -428,7 +428,7 @@ sudo yum install xdg-utils
 [github-contributors-shield]: https://openomy.app/svg?repo=Hiram-Wong/zyfun&chart=bubble&latestMonth=12
 [github-contributors-link]: https://openomy.app/github/Hiram-Wong/zyfun
 [github-license-shield]: https://img.shields.io/github/license/Hiram-Wong/zyfun?label=License&logo=gnu
-[github-license-link]: https://github.com/Hiram-Wong/zyfun/blob/main/LICENSE
+[github-license-link]: https://github.com/Hiram-Wong/zyfun/blob/main/LICENSE.txt
 [fossa-shield]: https://app.fossa.com/api/projects/git%2Bgithub.com%2FHiram-Wong%2Fzyfun.svg?type=shield
 [fossa-link]: https://app.fossa.com/projects/git%2Bgithub.com%2FHiram-Wong%2Fzyfun?ref=badge_shield
 [sponsor-shield]: https://img.shields.io/badge/赞助支持-FF6699.svg?logo=githubsponsors&logoColor=white
