@@ -375,7 +375,7 @@ const TYPE_OPTIONS = computed(() => [
 
   // { value: SITE_TYPE.T4_DRPYJS0, label: t('pages.film.field.typeMap.t4-drpy_js0') },
   { value: SITE_TYPE.T4_DRPYS, label: t('pages.film.field.typeMap.t4-drpys') },
-  { value: SITE_TYPE.T4_CATVOD, label: t('pages.film.field.typeMap.t4-catvod') },
+  // { value: SITE_TYPE.T4_CATVOD, label: t('pages.film.field.typeMap.t4-catvod') },
 ]);
 const OUTPUT_OPTIONS = computed(() => [
   { label: t('component.codeEditor.output.testResult'), value: 'testResult' },
