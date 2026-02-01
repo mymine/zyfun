@@ -84,6 +84,10 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Prepare env file
+        shell: bash
+        run: cp -f .env.example .env
+
       - name: Generate date tag
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
