@@ -7,7 +7,9 @@ import type { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { loggerService } from '@logger';
+import { configManager } from '@main/services/ConfigManager';
 import { Schema } from '@main/types/server';
+import { isDev } from '@main/utils/systeminfo';
 import { APP_DESC, APP_NAME, APP_VERSION } from '@shared/config/appinfo';
 import { LOG_MODULE } from '@shared/config/logger';
 import { CacheService } from '@shared/modules/cache';
@@ -72,7 +74,7 @@ export class FastifyService {
       await this.registerRoutes(); // Register routes
 
       await this.server!.ready(); // Finalize server setup
-      this.server!.swagger(); // swagger documentation
+      if (isDev || configManager.debug) this.server!.swagger(); // swagger documentation
       await this.server!.listen({ port: this.PORT, host: '0.0.0.0' });
     } catch (error) {
       logger.error(`Fastify Service Start Failed: ${(error as Error).message}`);
@@ -143,34 +145,36 @@ export class FastifyService {
     this.server!.decorate('cache', CacheService);
 
     // Register swagger
-    await this.server!.register(fastifySwagger, {
-      openapi: {
-        info: {
-          title: `${APP_NAME} - openapi`,
-          description: APP_DESC,
-          version: APP_VERSION,
-          license: {
-            name: 'License',
-            url: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    if (isDev || configManager.debug) {
+      await this.server!.register(fastifySwagger, {
+        openapi: {
+          info: {
+            title: `${APP_NAME} - openapi`,
+            description: APP_DESC,
+            version: APP_VERSION,
+            license: {
+              name: 'License',
+              url: 'https://www.gnu.org/licenses/agpl-3.0.html',
+            },
+          },
+          externalDocs: {
+            url: 'https://swagger.io',
+            description: 'Find out more about Swagger',
           },
         },
-        externalDocs: {
-          url: 'https://swagger.io',
-          description: 'Find out more about Swagger',
+      } as FastifySwaggerOptions);
+      await this.server!.register(fastifySwaggerUi, {
+        routePrefix: '/docs',
+        uiConfig: {
+          docExpansion: 'list',
+          deepLinking: false,
+          tryItOutEnabled: true,
+          layout: 'BaseLayout',
         },
-      },
-    } as FastifySwaggerOptions);
-    await this.server!.register(fastifySwaggerUi, {
-      routePrefix: '/docs',
-      uiConfig: {
-        docExpansion: 'list',
-        deepLinking: false,
-        tryItOutEnabled: true,
-        layout: 'BaseLayout',
-      },
-      staticCSP: true,
-      transformSpecificationClone: true,
-    } as FastifySwaggerUiOptions);
+        staticCSP: true,
+        transformSpecificationClone: true,
+      } as FastifySwaggerUiOptions);
+    }
   }
 
   private async registerSchemas(): Promise<void> {
