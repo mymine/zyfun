@@ -205,7 +205,7 @@ const editConf = ref<IEditorOptions['normal']>({
   fontLigatures: false, // 连字符
   insertSpaces: false, // 使用空格代替制表符
   language: 'html',
-  minimap: { enabled: false },
+  minimap: { enabled: true },
   overviewRulerBorder: false, // 概览标尺边框
   readOnly: false,
   roundedSelection: false, // 选区边框圆角
@@ -218,7 +218,7 @@ const editConf = ref<IEditorOptions['normal']>({
   smoothScrolling: true,
   stickyScroll: { enabled: false },
   tabSize: 2,
-  theme: storeSetting.displayTheme === THEME.LIGHT ? 'vs' : 'vs-dark',
+  theme: storeSetting.displayTheme === THEME.LIGHT ? 'code-light' : 'code-dark',
   wordWrap: 'off',
 });
 const termConf = ref<ITerminalOptions>({
@@ -290,7 +290,7 @@ const debugWatchStop = ref<WatchStopHandle | null>(null);
 watch(
   () => storeSetting.displayTheme,
   (val) => {
-    editConf.value.theme = val === THEME.LIGHT ? 'vs' : 'vs-dark';
+    editConf.value.theme = val === THEME.LIGHT ? 'code-light' : 'code-dark';
 
     termConf.value.theme = {
       foreground: val === THEME.LIGHT ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)',

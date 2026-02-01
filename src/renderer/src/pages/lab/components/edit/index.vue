@@ -389,7 +389,7 @@ const EDIT_CONF: IEditorOptions['normal'] = {
   fontFamily: 'JetBrainsMono, monospace',
   fontLigatures: false, // 连字符
   insertSpaces: false, // 使用空格代替制表符
-  minimap: { enabled: false },
+  minimap: { enabled: true },
   overviewRulerBorder: false, // 概览标尺边框
   readOnly: false,
   roundedSelection: false, // 选区边框圆角
@@ -402,7 +402,7 @@ const EDIT_CONF: IEditorOptions['normal'] = {
   smoothScrolling: true,
   stickyScroll: { enabled: false },
   tabSize: 2,
-  theme: storeSetting.displayTheme === THEME.LIGHT ? 'vs' : 'vs-dark',
+  theme: storeSetting.displayTheme === THEME.LIGHT ? 'code-light' : 'code-dark',
   wordWrap: 'off',
 };
 
@@ -519,8 +519,8 @@ const loggerAbortController = ref<any>(null);
 watch(
   () => storeSetting.displayTheme,
   (val) => {
-    codeEditConf.value.theme = val === THEME.LIGHT ? 'vs' : 'vs-dark';
-    htmlEditConf.value.theme = val === THEME.LIGHT ? 'vs' : 'vs-dark';
+    codeEditConf.value.theme = val === THEME.LIGHT ? 'code-light' : 'code-dark';
+    htmlEditConf.value.theme = val === THEME.LIGHT ? 'code-light' : 'code-dark';
 
     termConf.value.theme = {
       foreground: val === THEME.LIGHT ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)',

@@ -1,3 +1,5 @@
+import '../themes';
+
 import { throttle } from 'es-toolkit';
 import * as monacoModule from 'monaco-editor';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
@@ -106,9 +108,7 @@ export function useCodeEditor(props: CodeEditorProps, ctx: SetupContext) {
       initDiffEditor();
     }
 
-    if (!['vs', 'vs-dark'].includes(options.value.theme)) {
-      monaco.editor.setTheme('vs');
-    }
+    updateTheme();
 
     handleAutoHeight();
     setValueEmitter();
@@ -216,10 +216,8 @@ export function useCodeEditor(props: CodeEditorProps, ctx: SetupContext) {
   }
 
   function updateTheme() {
-    const theme = options.value.theme;
-    if (!['vs', 'vs-dark'].includes(theme)) {
-      monaco.editor.setTheme(theme);
-    }
+    const theme = options.value.theme || 'vs';
+    monaco.editor.setTheme(theme);
   }
 
   function updateOptions() {

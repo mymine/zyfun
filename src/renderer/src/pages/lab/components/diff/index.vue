@@ -72,14 +72,14 @@ const editorOptions = ref<IEditorOptions['diff']>({
   },
   smoothScrolling: true,
   stickyScroll: { enabled: false },
-  theme: storeSetting.displayTheme === THEME.LIGHT ? 'vs' : 'vs-dark',
+  theme: storeSetting.displayTheme === THEME.LIGHT ? 'code-light' : 'code-dark',
   useInlineViewWhenSpaceIsLimited: false, // 空间有限时不使用内联视图
   wordWrap: 'off',
 });
 
 watch(
   () => storeSetting.displayTheme,
-  (val) => (editorOptions.value.theme = val === THEME.LIGHT ? 'vs' : 'vs-dark'),
+  (val) => (editorOptions.value.theme = val === THEME.LIGHT ? 'code-light' : 'code-dark'),
 );
 
 const onImportFileByPath = async (type: 'origin' | 'target') => {
