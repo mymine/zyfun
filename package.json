@@ -10,7 +10,7 @@
     "email": "admin@catni.cn"
   },
   "license": "AGPL-3.0",
-  "homepage": "https://github.com/Hiram-Wong/ZyPlayer",
+  "homepage": "https://github.com/Hiram-Wong/zyfun",
   "engines": {
     "node": ">=22.0.0"
   },

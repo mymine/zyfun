@@ -60,7 +60,7 @@
 - 修复: title-menu组件 高度不统一, 数据变动不触发渲染或重复渲染
 - 修复: multi-player组件 已知问题(详见该组件CHANGELOG)
 - 修复: Linux操作系统rpm打包bug
-- 变动: 标识: zyplayer -> zyfun(除无法变动字段)
+- 变动: 标识: zyplayer -> zyfun(全部字段均迁移)
 - 变动: 影视不再提供drpy_js0支持(已过时, 几乎无人使用)
 - 变动: 网盘入口不再提供, 合入影视Alist适配器
 - 变动: 影视适配器drpy使用3.9.52beta3 20250801
