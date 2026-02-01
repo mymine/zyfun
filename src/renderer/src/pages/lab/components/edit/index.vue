@@ -1281,7 +1281,7 @@ const disconnectLogger = () => {
         flex-direction: column;
         gap: var(--td-size-4);
         padding: var(--td-comp-paddingTB-xs) var(--td-comp-paddingLR-xs);
-        overflow: auto hidden;
+        overflow: hidden auto;
         height: 100%;
       }
 
