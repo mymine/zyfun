@@ -65,7 +65,8 @@ export default {
   },
   message: {
     willReboot: '应用即将重启',
-    warnReboot: '重启应用后生效',
+    effectReboot: '重启应用后生效',
+    partialReboot: '部分模块重启应用后生效',
   },
   sniffer: {
     title: '嗅探',

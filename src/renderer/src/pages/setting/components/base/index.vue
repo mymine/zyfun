@@ -182,7 +182,7 @@
           <t-radio v-model="formData.hardwareAcceleration" allow-uncheck @change="handleHardwareAcceleration">
             {{ $t('pages.setting.base.permission.hardwareAcceleration') }}
           </t-radio>
-          <t-radio v-model="formData.debug" allow-uncheck>
+          <t-radio v-model="formData.debug" allow-uncheck @change="handleDebug">
             {{ $t('pages.setting.base.permission.debug') }}
           </t-radio>
         </t-space>
@@ -413,7 +413,11 @@ const handleAutoLaunch = () => {
 };
 
 const handleHardwareAcceleration = () => {
-  MessagePlugin.warning(t('pages.setting.message.warnReboot'));
+  MessagePlugin.warning(t('pages.setting.message.effectReboot'));
+};
+
+const handleDebug = () => {
+  MessagePlugin.warning(t('pages.setting.message.partialReboot'));
 };
 
 const handleFactoryReset = () => {

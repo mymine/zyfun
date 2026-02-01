@@ -66,7 +66,8 @@ export default {
   },
   message: {
     willReboot: 'Application is about to restart',
-    warnReboot: 'Restart the application to take effect',
+    effectReboot: 'Restart the application to take effect',
+    partialReboot: 'Restarting the relevant modules will take effect',
   },
   sniffer: {
     title: 'Sniffer',

@@ -65,7 +65,8 @@ export default {
   },
   message: {
     willReboot: '應用即將重啟',
-    warnReboot: '重啟應用後生效',
+    effectReboot: '重啟應用後生效',
+    partialReboot: '部分模塊重啟應用後生效',
   },
   sniffer: {
     title: '嗅探',
