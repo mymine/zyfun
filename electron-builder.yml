@@ -1,6 +1,6 @@
 # see config at https://www.electron.build/configuration
 
-appId: com.player.zyfun
+appId: com.github.zyfun
 productName: zyfun
 copyright: Copyright © 2023 zyfun Inc.
 electronLanguages:
