@@ -82,7 +82,6 @@ files:
   - '!*.log'
   - '!**/{LICENSE,LICENSE.txt,ThirdPartyNotices.txt,NOTICE.txt,README.md,RELEASE.md,CHANGELOG.md}'
   - '!node_modules/rollup-plugin-visualizer'
-
 asar: true
 asarUnpack:
   - resources/**
@@ -147,7 +146,7 @@ rpm:
   # Workaround for electron build issue on rpm package:
   # https://github.com/electron/forge/issues/3594
   fpm: ['--rpm-rpmbuild-define=_build_id_links none']
-npmRebuild: false
+npmRebuild: true
 publish:
   provider: github
   owner: 'Hiram-Wong'
