@@ -90,6 +90,7 @@ win:
   artifactName: ${productName}-${os}-${version}-${arch}-setup.${ext}
   executableName: zyfun
   icon: build/icon.ico
+  # signAndEditExecutable: false
   signtoolOptions:
     sign: scripts/win-sign.js
   target:
