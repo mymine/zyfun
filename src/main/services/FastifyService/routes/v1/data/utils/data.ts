@@ -1,8 +1,10 @@
+import { loggerService } from '@main/services/LoggerService';
 import type { Catvod, Tvbox, TvboxLiveNewItem, TvboxLiveOldItem } from '@main/types/tvbox';
 import { pathExist, readFile } from '@main/utils/file';
 import { request } from '@main/utils/request';
 import type { IDataImportType, IDataRemoteType } from '@shared/config/data';
 import { DATA_COMPLETE_TYPE, DATA_IMPORT_TYPE, DATA_SIMPLE_TYPE } from '@shared/config/data';
+import { LOG_MODULE } from '@shared/config/logger';
 import type { ISettingKey } from '@shared/config/tblSetting';
 import { settingKeys, settingList as tblSetting } from '@shared/config/tblSetting';
 import { aes, base64, randomUUID } from '@shared/modules/crypto';
@@ -23,6 +25,8 @@ import {
   isUUID,
 } from '@shared/modules/validate';
 import type { IDbStore } from '@shared/types/db';
+
+const logger = loggerService.withContext(LOG_MODULE.DATA_HELPER);
 
 const catvodToStandard = (config: Catvod, baseUrl: string): Partial<IDbStore> => {
   if (isObjectEmpty(config) || !config?.video?.sites?.length) return {};
@@ -508,7 +512,8 @@ export const convertToStandard = async (importType: IDataImportType, remoteType:
     try {
       const { data: resp } = await request.request({ url: path, method: 'GET', responseType: 'text' });
       content = resp;
-    } catch {
+    } catch (error) {
+      logger.error(`Failed fetch ${path} cause of ${(error as Error).message}`);
       content = null;
     }
   } else if (importType === DATA_IMPORT_TYPE.COMPLETE && remoteType === DATA_COMPLETE_TYPE.LOCAL) {
