@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import type { ISetup } from '@shared/config/tblSetting';
 import { setupObj as tblSetup } from '@shared/config/tblSetting';
+import { THEME } from '@shared/config/theme';
 import { onMounted, ref, watch } from 'vue';
 
 import { fetchSetup } from '@/api/setting';
@@ -43,6 +44,14 @@ watch(
     }
   },
   { deep: true },
+);
+watch(
+  () => storeSetting.displayTheme,
+  () => {
+    if (storeSetting.theme === THEME.SYSTEM) {
+      storeSetting.changePreferredTheme();
+    }
+  },
 );
 
 onMounted(() => setup());
