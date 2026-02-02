@@ -583,9 +583,11 @@ const saveSiteData = async () => {
 const getSiteData = async () => {
   try {
     const resp = await fetchSiteDetailByKey(DEBUG_PREFIX);
-
-    const site = isNil(resp?.id) ? await saveSiteData() : resp;
-    siteData.value = site;
+    if (!isNil(resp?.id)) {
+      siteData.value = resp;
+    } else {
+      await saveSiteData();
+    }
   } catch (error) {
     console.error('Fail to get site data', error);
     siteData.value = {} as IModels['site'];
