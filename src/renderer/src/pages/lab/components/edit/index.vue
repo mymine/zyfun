@@ -535,9 +535,14 @@ onDeactivated(() => deactivateDispose());
 
 const setup = async () => {
   await getSiteData();
+
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   active.value.type = siteData.value.type as ISiteType;
   editText.value.code = await readFile(active.value.type, 'silence');
-
   await connectLogger();
 };
 
@@ -854,6 +859,11 @@ const handleDomDebugPdfh = async () => {
 
 // data
 const handleDataDebugInit = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.init = true;
   try {
     const uuid = siteData.value.id;
@@ -879,6 +889,11 @@ const handleDataDebugInit = async () => {
 };
 
 const handleDataDebugHome = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.home = true;
   try {
     const uuid = siteData.value.id;
@@ -902,6 +917,11 @@ const handleDataDebugHome = async () => {
 };
 
 const handleDataDebugHomeVod = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.homeVod = true;
   try {
     const uuid = siteData.value.id;
@@ -925,6 +945,11 @@ const handleDataDebugHomeVod = async () => {
 };
 
 const handleDataDebugCategory = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.category = true;
   try {
     const { tid, filter = '{}', page = 1 } = dataFormData.value.category;
@@ -962,6 +987,11 @@ const handleDataDebugCategory = async () => {
 };
 
 const handleDataDebugDetail = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.detail = true;
   try {
     const { ids } = dataFormData.value.detail;
@@ -991,6 +1021,11 @@ const handleDataDebugDetail = async () => {
 };
 
 const handleDataDebugSearch = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.search = true;
   try {
     const { wd, page = 1 } = dataFormData.value.search;
@@ -1020,6 +1055,11 @@ const handleDataDebugSearch = async () => {
 };
 
 const handleDataDebugPlay = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.play = true;
   try {
     const { flag, play } = dataFormData.value.play;
@@ -1055,6 +1095,11 @@ const handleDataDebugPlay = async () => {
 };
 
 const handleDataDebugProxy = async () => {
+  if (isNil(siteData.value?.id)) {
+    MessagePlugin.warning(t('pages.lab.edit.message.noInitSource'));
+    return;
+  }
+
   dataLoading.value.proxy = true;
   try {
     const { url } = dataFormData.value.proxy;
