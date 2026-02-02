@@ -39,11 +39,47 @@ jobs:
           echo "Running in repository: ${{ github.repository }}"
           echo "Should run: ${{ github.repository == 'Hiram-Wong/zyfun' }}"
 
-  nightly-build:
-    needs: check-repository
-    if: needs.check-repository.outputs.should_run == 'true'
-    runs-on: ${{ matrix.os }}
+  check-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      has_commit: ${{ steps.check.outputs.has_commit }}
+    steps:
+      - name: Check commits in last 24h
+        id: check
+        run: |
+          until=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          since=$(date -u -d "24 hours ago" +"%Y-%m-%dT%H:%M:%SZ")
 
+          echo "Checking commits:"
+          echo "  since: $since"
+          echo "  until: $until"
+
+          count=$(gh api \
+          repos/${{ github.repository }}/commits \
+          -f sha=main \
+          -f since="$since" \
+          -f until="$until" \
+          --jq 'length')
+
+          echo "Commit count: $count"
+
+          if [ "$count" -gt 0 ]; then
+            echo "has_commit=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_commit=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  nightly-build:
+    needs: [check-repository, check-commit]
+    if: |
+      needs.check-repository.outputs.should_run == 'true' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        needs.check-commit.outputs.has_commit == 'true'
+      )
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
@@ -203,7 +239,7 @@ jobs:
           compression-level: 8
 
   Build-Summary:
-    needs: nightly-build
+    needs: [check-commit, nightly-build]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -213,6 +249,7 @@ jobs:
         shell: bash
 
       - name: Download all artifacts
+        if: needs.check-commit.outputs.has_commit == 'true'
         uses: actions/download-artifact@v5
         with:
           path: all-artifacts
@@ -221,61 +258,70 @@ jobs:
 
       - name: Create summary report
         run: |
-          echo "## ⚠️ 警告：这是每日构建版本" >> $GITHUB_STEP_SUMMARY
-          echo "此版本为自动构建的不稳定版本，仅供测试使用。不建议在生产环境中使用。" >> $GITHUB_STEP_SUMMARY
-          echo "安装此版本前请务必备份数据，并做好数据迁移准备。" >> $GITHUB_STEP_SUMMARY
-          echo "构建日期：$(date +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          echo "## 📦 安装包校验和" >> $GITHUB_STEP_SUMMARY
-          echo "请在下载后验证文件完整性。提供 SHA256 校验和。" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Check each platform's artifacts and show checksums if available
-
-          # Windows
-          WIN_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-windows-latest"
-          if [ -d "$WIN_ARTIFACT_DIR" ] && [ -f "$WIN_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
-            echo "### Windows 安装包" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat "$WIN_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.check-commit.outputs.has_commit }}" != "true" ]; then
+            echo "## 💤 今日未触发 Nightly 构建" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- 原因：过去 24 小时内 main 分支没有新的提交" >> $GITHUB_STEP_SUMMARY
+            echo "- 构建策略：仅在有提交时才触发 Nightly Build" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⏱ 检查窗口：最近 24 小时(UTC)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### Windows 安装包" >> $GITHUB_STEP_SUMMARY
-            echo "❌ Windows 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
+            echo "## ⚠️ 警告：这是每日构建版本" >> $GITHUB_STEP_SUMMARY
+            echo "此版本为自动构建的不稳定版本，仅供测试使用。不建议在生产环境中使用。" >> $GITHUB_STEP_SUMMARY
+            echo "安装此版本前请务必备份数据，并做好数据迁移准备。" >> $GITHUB_STEP_SUMMARY
+            echo "构建日期：$(date +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-          fi
 
-          # macOS
-          MAC_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-macos-latest"
-          if [ -d "$MAC_ARTIFACT_DIR" ] && [ -f "$MAC_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
-            echo "### macOS 安装包" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat "$MAC_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "## 📦 安装包校验和" >> $GITHUB_STEP_SUMMARY
+            echo "请在下载后验证文件完整性。提供 SHA256 校验和。" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### macOS 安装包" >> $GITHUB_STEP_SUMMARY
-            echo "❌ macOS 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
 
-          # Linux
-          LINUX_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-ubuntu-latest"
-          if [ -d "$LINUX_ARTIFACT_DIR" ] && [ -f "$LINUX_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
-            echo "### Linux 安装包" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat "$LINUX_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### Linux 安装包" >> $GITHUB_STEP_SUMMARY
-            echo "❌ Linux 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
+            # Check each platform's artifacts and show checksums if available
 
-          echo "## ⚠️ Warning: This is a nightly build version" >> $GITHUB_STEP_SUMMARY
-          echo "This version is an unstable version built automatically and is only for testing. It is not recommended to use it in a production environment." >> $GITHUB_STEP_SUMMARY
-          echo "Please backup your data before installing this version and prepare for data migration." >> $GITHUB_STEP_SUMMARY
-          echo "Build date: $(date +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+            # Windows
+            WIN_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-windows-latest"
+            if [ -d "$WIN_ARTIFACT_DIR" ] && [ -f "$WIN_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
+              echo "### Windows 安装包" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat "$WIN_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### Windows 安装包" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Windows 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            # macOS
+            MAC_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-macos-latest"
+            if [ -d "$MAC_ARTIFACT_DIR" ] && [ -f "$MAC_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
+              echo "### macOS 安装包" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat "$MAC_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### macOS 安装包" >> $GITHUB_STEP_SUMMARY
+              echo "❌ macOS 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            # Linux
+            LINUX_ARTIFACT_DIR="all-artifacts/zyfun-nightly-${{ steps.date.outputs.date }}-ubuntu-latest"
+            if [ -d "$LINUX_ARTIFACT_DIR" ] && [ -f "$LINUX_ARTIFACT_DIR/SHA256SUMS.txt" ]; then
+              echo "### Linux 安装包" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat "$LINUX_ARTIFACT_DIR/SHA256SUMS.txt" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### Linux 安装包" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Linux 构建未成功完成或未生成校验和。" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            echo "## ⚠️ Warning: This is a nightly build version" >> $GITHUB_STEP_SUMMARY
+            echo "This version is an unstable version built automatically and is only for testing. It is not recommended to use it in a production environment." >> $GITHUB_STEP_SUMMARY
+            echo "Please backup your data before installing this version and prepare for data migration." >> $GITHUB_STEP_SUMMARY
+            echo "Build date: $(date +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+          fi
