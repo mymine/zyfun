@@ -298,9 +298,7 @@ import { throttle } from 'es-toolkit';
 import JSON5 from 'json5';
 import { Pane, Splitpanes } from 'splitpanes';
 import { ClearFormatting1Icon } from 'tdesign-icons-vue-next';
-import type { MessageInstance } from 'tdesign-vue-next';
 import { MessagePlugin } from 'tdesign-vue-next';
-import type { WatchStopHandle } from 'vue';
 import { computed, nextTick, onActivated, onDeactivated, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -510,10 +508,6 @@ const dataLoading = ref({
 const templateNameList = ref<string[]>([]);
 const siteData = ref({} as IModels['site']);
 
-const alert = ref<Record<string, Promise<MessageInstance> | null>>({
-  debug: null,
-});
-const debugWatchStop = ref<WatchStopHandle | null>(null);
 const loggerAbortController = ref<any>(null);
 
 watch(
@@ -548,36 +542,10 @@ const setup = async () => {
 };
 
 const activeSetup = async () => {
-  debugWatchStop.value = watch(
-    () => storeSetting.debug,
-    (val) => {
-      if (!val) {
-        alert.value.debug && MessagePlugin.close(alert.value.debug);
-        alert.value.debug = null;
-        return;
-      }
-
-      if (!alert.value.debug) {
-        alert.value.debug = MessagePlugin.warning({
-          content: t('common.alert.debugModuleConflict'),
-          duration: 0,
-          closeBtn: true,
-        });
-      }
-    },
-    { immediate: true },
-  );
-
   if (!isNil(siteData.value?.id)) await connectLogger();
 };
 
 const deactivateDispose = () => {
-  debugWatchStop.value?.();
-  debugWatchStop.value = null;
-
-  alert.value.debug && MessagePlugin.close(alert.value.debug);
-  alert.value.debug = null;
-
   disconnectLogger();
 };
 
