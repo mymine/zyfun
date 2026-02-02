@@ -89,36 +89,42 @@ zyfun是一款免费、极简、全能的跨平台影音管家，一站式管理
 ## 💻 跨平台说明
 
 - **MacOS**:
-  - 提供 arm64(苹果芯片)/x64(英特尔芯片)架构安装包
   - 数据库/文件/插件/日志 路径: `~/Library/Application Support/zyfun/`
   - 二进制 路径: `~/.zy/bin/`
 - **Linux**:
-  - 提供 arm64/x64架构-image/deb安装包
   - 数据库/文件/插件/日志 路径: `~/.config/zyfun/`
   - 二进制 路径: `~/.zy/bin/`
 - **Windows**:
-  - 提供 arm64/x64架构安装包
   - 数据库/文件/插件/日志 路径: `%USERPROFILE%\AppData\Roaming\zyfun\`
   - 二进制 路径: `%USERPROFILE%\.zy\bin\`
   <!-- - **OpenHarmony**:
-  - 提供 arm64/x64架构安装包
   - 数据库/文件/插件/日志 路径: `/data/storage/zyfun/base/files/log`
   - 二进制 路径: `~/.zy/bin/`-->
 
 ## 🛠️ 下载安装
 
-> **最新发布版下载**: 访问 [GitHub Releases页面](https://github.com/Hiram-Wong/zyfun/releases) 获取
+> **开发版下载**: 需登录Github账号
 
-> **最新开发版下载**: 访问 [GitHub Actions页面](https://github.com/Hiram-Wong/zyfun/actions/workflows/nightly-build.yml) 获取, 需登录Github账号
+> **最低要求**: 和chromium内核要求保持一致
 
-### MacOS 安装后打开提示「文件已损坏」
+| 操作系统 | x64 | arm64 | loong64 | 发行版                                                                                                                                                                                                                      | 开发版                                                                            | 最低要求   |
+| :------: | :-: | :---: | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------- |
+| Windows  | ✅  |  ✅   |   ➖    | [GitHub](https://github.com/Hiram-Wong/zyfun/releases)                                                                                                                                                                      | [GitHub](https://github.com/Hiram-Wong/zyfun/actions/workflows/nightly-build.yml) | >= win10   |
+|  MacOS   | ✅  |  ✅   |   ➖    | [GitHub](https://github.com/Hiram-Wong/zyfun/releases)                                                                                                                                                                      | [GitHub](https://github.com/Hiram-Wong/zyfun/actions/workflows/nightly-build.yml) | >= macOS12 |
+|  Linux   | ✅  |  ✅   |   ❌    | [GitHub](https://github.com/Hiram-Wong/zyfun/releases) <br/> [如意玲珑应用商店](https://store.linyaps.org.cn/) <br/> [AUR软件包](https://aur.archlinux.org/packages?O=0&SeB=nd&K=zyfun&outdated=&SB=p&SO=d&PP=50&submit=Go) | [GitHub](https://github.com/Hiram-Wong/zyfun/actions/workflows/nightly-build.yml) |            |
+| Harmony  | ❌  |  ❌   |   ➖    |                                                                                                                                                                                                                             |                                                                                   |
+
+<details>
+<summary>展开查看安装问题</summary>
+
+#### MacOS 安装后打开提示「文件已损坏」
 
 ```bash
 sudo spctl --master-disable
 sudo xattr -cr /Applications/zyfun.app
 ```
 
-### Linux Appimage运行失败
+#### Linux Appimage运行失败
 
 > Running as root without --no-sandbox is not supported
 
@@ -138,7 +144,7 @@ sudo apt-get install libfuse2
 xhost +
 ```
 
-### Linux deb包安装失败
+#### Linux deb包安装失败
 
 > Package libnss3-1d is not installed
 
@@ -152,7 +158,7 @@ sudo apt-get install libnss3-1d
 sudo apt-get install libxss1
 ```
 
-### Linux rpm包安装失败
+#### Linux rpm包安装失败
 
 > Dependency check failed libXScrnSaver is needed
 
@@ -166,6 +172,8 @@ sudo yum install libXScrnSaver
 ```bash
 sudo yum install xdg-utils
 ```
+
+</details>
 
 ## 📚 数据结构
 
@@ -401,6 +409,7 @@ sudo yum install xdg-utils
 - **产品设计**：参与设计讨论
 - **编写文档**：改进用户手册和指南
 - **社区参与**：加入讨论并帮助用户
+- **用爱发电**：支持项目发展(不限于资金,服务器等) <[kofi](https://ko-fi.com/hiramwong)> <[爱发电](https://ifdian.net/a/hiram)>
 
 [![][github-contributors-shield]][github-contributors-link]
 
