@@ -48,7 +48,7 @@ files:
   - '!scripts'
   - '!docs'
   - '!packages'
-  - '!patches/*'
+  - '!patches'
   - '!design/*.sketch'
 
   # Exclusion python
@@ -68,11 +68,21 @@ files:
   - '!**/{example,examples}/**'
   - '!**/*.{spec,test}.{js,jsx,ts,tsx}'
 
+  # Exclusion native build files
+  - '!**/node_modules/**/*.cpp'
+  - '!**/node_modules/node-addon-api/**'
+  - '!**/node_modules/prebuild-install/**'
+  - '!**/*.{h,iobj,ipdb,tlog,recipe,vcxproj,vcxproj.filters,Makefile,*.Makefile}' # filter .node build files
+
   # Exclusion others
+  - '!.swc'
+  - '!.bin'
   - '!**/*.min.*.map'
   - '!**/*.d.ts'
   - '!*.log'
   - '!**/{LICENSE,LICENSE.txt,ThirdPartyNotices.txt,NOTICE.txt,README.md,RELEASE.md,CHANGELOG.md}'
+  - '!node_modules/rollup-plugin-visualizer'
+
 asar: true
 asarUnpack:
   - resources/**
@@ -110,7 +120,6 @@ mac:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   icon: build/icon.icns
-  minimumSystemVersion: '20.1.0'
   notarize: false
   target:
     - target: dmg
