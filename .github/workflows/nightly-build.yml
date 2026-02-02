@@ -55,11 +55,9 @@ jobs:
           echo "  until: $until"
 
           count=$(gh api \
-          repos/${{ github.repository }}/commits \
-          -f sha=main \
-          -f since="$since" \
-          -f until="$until" \
-          --jq 'length')
+            -X GET \
+            "repos/${{ github.repository }}/commits?sha=main&since=$since&until=$until" \
+            --jq 'length')
 
           echo "Commit count: $count"
 
