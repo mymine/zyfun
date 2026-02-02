@@ -430,7 +430,7 @@ const handleFactoryReset = () => {
     placement: 'center',
     closeBtn: '',
     onConfirm: async () => {
-      await dataDbClear({ types: '' });
+      await dataDbClear({ type: ['site', 'live', 'analyze', 'history', 'star', 'setting', 'plugin', 'cache'] });
       dialog.hide();
       handleReboot();
     },
