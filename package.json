@@ -25,7 +25,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "typecheck:node": "tsgo --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
-    "npmcheck": "ncu -u -x 'vite electron electron-builder electron-updater electron-store monaco-editor @libsql/client  @libsql/darwin-arm64 @libsql/darwin-x64 @libsql/linux-arm64-gnu @libsql/linux-x64-gnu @libsql/linux-arm64-musl @libsql/linux-x64-musl @libsql/win32-x64-msvc @strongtz/win32-arm64-msvc undici @vitest/browser @vitest/coverage-v8 @vitest/ui @vitest/web-worker vitest turndown builder-util-runtime'",
+    "npmcheck": "ncu -u",
     "depcheck": "depcheck --skip-missing=true",
     "generate:licenses": "node ./scripts/generate-license.js",
     "generate:icons": "electron-icon-builder --input=./build/logo.png --output=build",
