@@ -7,7 +7,6 @@ import { defineConfig } from 'electron-vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
-import { ViteImageOptimizer as viteImageOptimizer } from 'vite-plugin-image-optimizer';
 import viteVueDevTools from 'vite-plugin-vue-devtools';
 import viteSvgLoader from 'vite-svg-loader';
 
@@ -128,7 +127,6 @@ export default defineConfig({
           }),
         ],
       }),
-      viteImageOptimizer(),
       viteSvgLoader(),
       viteVueDevTools(),
       ...visualizerPlugin('renderer'),
