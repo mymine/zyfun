@@ -390,8 +390,6 @@ const loadMoreSearch = async (): Promise<number> => {
   };
 
   try {
-    if (isLastSearchSite) return 0;
-
     const resp = await fetchCmsSearch({
       uuid: searchCurrentId,
       wd: searchValue.value,
@@ -541,7 +539,6 @@ const handleSearch = async () => {
   filmList.value = [];
   classList.value = [];
   filterData.value = {};
-  active.value.searchCurrent = config.value.searchList?.[0]?.id || '';
 
   infiniteId.value = Date.now();
 };
@@ -554,6 +551,7 @@ const onSearchRecommend = (eventData: { source: string; data: any }) => {
   if (source === emitterSource.PAGE_SHOW) return;
 
   searchValue.value = kw;
+
   config.value.extra.filter = filter;
   config.value.extra.search = group;
   config.value.searchList = collateSearchSite(group, config.value.default);
@@ -562,6 +560,7 @@ const onSearchRecommend = (eventData: { source: string; data: any }) => {
     MessagePlugin.warning(t('pages.film.message.noEffectiveSearchSource'));
     return;
   }
+  active.value.searchCurrent = config.value.searchList[0].id;
 
   handleSearch();
 };
