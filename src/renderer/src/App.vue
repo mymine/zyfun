@@ -62,9 +62,9 @@ const setup = () => {
 
 const syncStore = async () => {
   const resp = await fetchSetup();
-  const { barrage, bossKey, debug, disclaimer, lang, player, theme, timeout } = resp;
-
   setupConf.value = resp;
+
+  const { barrage, bossKey, debug, disclaimer, lang, player, theme, timeout } = resp;
 
   // privacy policy
   active.value.disclaimer = !disclaimer;
@@ -73,8 +73,9 @@ const syncStore = async () => {
   storeSetting.updateConfig({ bossKey, debug, lang, theme, timeout: timeout || 5000 });
   // play store sync config
   storePlayer.updateConfig({ barrage, player });
-};
 
+  if (debug) debugMode(debug);
+};
 const debugMode = (type: boolean) => {
   if (type) {
     startVitals();
