@@ -373,25 +373,25 @@ const loadMoreCategory = async (): Promise<number> => {
 
 const loadMoreSearch = async (): Promise<number> => {
   const { pageIndex } = pagination.value;
-  const searchCurrentId = active.value.searchCurrent;
   const searchSiteList = config.value.searchList;
-  const searchCurrentIndex = searchSiteList.findIndex((item) => item.id === searchCurrentId);
-  const isLastSearchSite = searchCurrentIndex + 1 >= searchSiteList.length;
+  const currentSiteId = active.value.searchCurrent;
+  const siteIndex = searchSiteList.findIndex((item) => item.id === currentSiteId);
+  const currentSite = searchSiteList[siteIndex];
+
+  const isLastSite = siteIndex + 1 >= searchSiteList.length;
 
   const switchNextSearchSite = (): number => {
     resetPagination();
 
-    if (isLastSearchSite) {
-      return 0;
-    } else {
-      active.value.searchCurrent = searchSiteList[searchCurrentIndex + 1].id;
-      return 1;
-    }
+    if (isLastSite) return 0;
+
+    active.value.searchCurrent = searchSiteList[siteIndex + 1].id;
+    return 1;
   };
 
   try {
     const resp = await fetchCmsSearch({
-      uuid: searchCurrentId,
+      uuid: currentSiteId,
       wd: searchValue.value,
       page: pageIndex,
     });
@@ -400,20 +400,25 @@ const loadMoreSearch = async (): Promise<number> => {
       return switchNextSearchSite();
     }
 
-    resp.list = differenceBy(resp.list, filmList.value, (item: ICmsInfo) => item.vod_id);
-    if (isArrayEmpty(resp.list)) {
+    const normalizedList = resp.list.map((item: ICmsInfo) => ({
+      ...item,
+      relateSite: currentSite,
+    }));
+
+    const uniqueList = differenceBy(
+      normalizedList,
+      filmList.value,
+      (item: ICmsInfo & { relateSite: IModels['site'] }) => `${item.relateSite?.id ?? '0'}-${item.vod_id}`,
+    );
+
+    if (isArrayEmpty(uniqueList)) {
       return switchNextSearchSite();
     }
 
-    filmList.value.push(
-      ...resp.list.map((item) => ({
-        ...item,
-        relateSite: searchSiteList[searchCurrentIndex],
-      })),
-    );
-
+    filmList.value.push(...uniqueList);
     pagination.value.pageIndex++;
-    return resp.list;
+
+    return uniqueList.length;
   } catch (error) {
     console.error('Failed to load search data:', error);
     return switchNextSearchSite();
