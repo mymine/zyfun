@@ -185,7 +185,7 @@ const resetPagination = () => {
   pagination.value.total = 0;
 };
 
-const getSetting = async () => {
+const getStar = async (): Promise<number> => {
   const { pageIndex, pageSize } = pagination.value;
 
   const resp = await fetchStarPage({
@@ -203,16 +203,16 @@ const getSetting = async () => {
   return resp.list.length;
 };
 
+const loadMoreStar = async (): Promise<number> => {
+  const length = await getStar();
+  if (length !== 0) pagination.value.pageIndex++;
+  return length;
+};
+
 const loadMore = async ($state: ILoadStateHdandler) => {
   try {
-    const length = await getSetting();
-
-    if (length === 0) {
-      $state.complete();
-    } else {
-      pagination.value.pageIndex++;
-      $state.loaded();
-    }
+    const length = await loadMoreStar();
+    length === 0 ? $state.complete() : $state.loaded();
   } catch (error) {
     console.error(`Failed to load more data:`, error);
     $state.error();

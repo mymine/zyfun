@@ -251,6 +251,12 @@ const getChannel = async (): Promise<number> => {
   return resp.list.length;
 };
 
+const loadMoreChannel = async (): Promise<number> => {
+  const length = await getChannel();
+  if (length !== 0) pagination.value.pageIndex++;
+  return length;
+};
+
 const updateChannelProperty = <K extends keyof IChannel>(id: string, key: K, value: IChannel[K]) => {
   const index = channelList.value.findIndex((item) => item.id === id);
   if (index !== -1) {
@@ -313,15 +319,8 @@ const loadMore = async ($state: ILoadStateHdandler) => {
       return;
     }
 
-    const length = await getChannel();
-
-    if (length === 0) {
-      resetPagination();
-      $state.complete();
-    } else {
-      pagination.value.pageIndex++;
-      $state.loaded();
-    }
+    const length = await loadMoreChannel();
+    length === 0 ? $state.complete() : $state.loaded();
   } catch (error) {
     console.error(`Failed to load more data:`, error);
     $state.error();

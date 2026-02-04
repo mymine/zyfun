@@ -341,7 +341,7 @@ const getCmsCategory = async (source: IModels['site']): Promise<number> => {
     uuid: source.id,
     tid,
     page: pageIndex,
-    extend: String(JSON.stringify(f)),
+    extend: JSON.stringify(f),
   });
 
   if (isArray(resp.list) && !isArrayEmpty(resp.list)) {
@@ -356,13 +356,19 @@ const getCmsCategory = async (source: IModels['site']): Promise<number> => {
 const loadMoreCategory = async (): Promise<number> => {
   const source = config.value.default;
 
+  // Load class only once
   if (!isArray(classList.value) || isArrayEmpty(classList.value)) {
     const length = await getCmsHome(source);
-    if (length < 1) active.value.loadStatus = 'error';
-    return length;
+    if (length < 1) {
+      active.value.loadStatus = 'error';
+      return 0;
+    }
   }
 
-  return await getCmsCategory(source);
+  // Load category data
+  const length = await getCmsCategory(source);
+  if (length !== 0) pagination.value.pageIndex++;
+  return length;
 };
 
 const loadMoreSearch = async (): Promise<number> => {
@@ -424,14 +430,7 @@ const loadMore = async ($state: ILoadStateHdandler) => {
     }
 
     const length = searchValue.value ? await loadMoreSearch() : await loadMoreCategory();
-
-    if (length === 0) {
-      resetPagination();
-      $state.complete();
-    } else {
-      pagination.value.pageIndex++;
-      $state.loaded();
-    }
+    length === 0 ? $state.complete() : $state.loaded();
   } catch (error) {
     console.error(`Failed to load more data:`, error);
     $state.error();
@@ -537,11 +536,13 @@ const handleCmsTagFolder = (doc: ICmsInfo) => {
 const handleCmsTagAction = (_doc: ICmsInfo) => {};
 
 const handleSearch = async () => {
+  resetPagination();
+
   filmList.value = [];
   classList.value = [];
   filterData.value = {};
   active.value.searchCurrent = config.value.searchList?.[0]?.id || '';
-  resetPagination();
+
   infiniteId.value = Date.now();
 };
 
@@ -598,8 +599,6 @@ const defaultConfig = () => {
   folderBreadcrumb.value = [];
 
   config.value.default = {} as IModels['site'];
-
-  infiniteId.value = Date.now();
 };
 
 const reloadConfig = async (eventData: { source: string; data: any }) => {
@@ -608,6 +607,8 @@ const reloadConfig = async (eventData: { source: string; data: any }) => {
 
   defaultConfig();
   await getSetting();
+
+  infiniteId.value = Date.now();
 };
 
 const onNavChange = async (id: string) => {
@@ -616,6 +617,8 @@ const onNavChange = async (id: string) => {
     active.value.class = '';
     active.value.nav = id;
     config.value.default = config.value.list.find((item) => item.id === id)!;
+
+    infiniteId.value = Date.now();
   } catch (error) {
     console.error(`Failed to change config:`, error);
   } finally {
