@@ -329,8 +329,10 @@ const loadMore = async ($state: ILoadStateHdandler) => {
 };
 
 const handleSearch = async () => {
-  channelList.value = [];
   resetPagination();
+
+  channelList.value = [];
+
   infiniteId.value = Date.now();
 };
 
@@ -435,8 +437,6 @@ const defaultConfig = () => {
   channelList.value = [];
 
   config.value.default = {} as IModels['iptv'];
-
-  infiniteId.value = Date.now();
 };
 
 const reloadConfig = async (eventData: { source: string; data: any }) => {
@@ -445,6 +445,8 @@ const reloadConfig = async (eventData: { source: string; data: any }) => {
 
   defaultConfig();
   await getSetting();
+
+  infiniteId.value = Date.now();
 };
 
 const onNavChange = async (id: string) => {
@@ -455,6 +457,8 @@ const onNavChange = async (id: string) => {
     await putIptvDefault(id);
     config.value.default = config.value.list.find((item) => item.id === id)!;
     emitter.emit(emitterChannel.REFRESH_LIVE_CONFIG, { source: emitterSource.PAGE_SHOW });
+
+    infiniteId.value = Date.now();
   } catch (error) {
     console.error(`Failed to change config:`, error);
   } finally {

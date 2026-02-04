@@ -228,6 +228,11 @@ const formatProgress = (watch: number, duration: number): string => {
   return `${Math.min(progress, 100)}%`;
 };
 
+const resetPagination = () => {
+  pagination.value.pageIndex = 1;
+  pagination.value.total = 0;
+};
+
 const getSetting = async () => {
   const { pageIndex, pageSize } = pagination.value;
 
@@ -469,12 +474,18 @@ const handleRemoveItem = async (item: IHistory) => {
   pagination.value.total--;
 };
 
+const defaultConfig = () => {
+  resetPagination();
+
+  historyData.value = { today: [], week: [], ago: [] };
+};
+
 const reloadConfig = async (eventData: { source: string; data: any }) => {
   const { source } = eventData;
   if (source === emitterSource.PAGE_SHOW) return;
 
-  historyData.value = { today: [], week: [], ago: [] };
-  pagination.value.pageIndex = 1;
+  defaultConfig();
+
   infiniteId.value = Date.now();
 };
 </script>

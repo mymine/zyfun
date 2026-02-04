@@ -180,6 +180,11 @@ onActivated(() => {
   emitter.on(emitterChannel.REFRESH_MOMENT_CONFIG, reloadConfig);
 });
 
+const resetPagination = () => {
+  pagination.value.pageIndex = 1;
+  pagination.value.total = 0;
+};
+
 const getSetting = async () => {
   const { pageIndex, pageSize } = pagination.value;
 
@@ -416,12 +421,18 @@ const handleRemoveItem = async (item: IStar) => {
   pagination.value.total--;
 };
 
+const defaultConfig = () => {
+  resetPagination();
+
+  starList.value = [];
+};
+
 const reloadConfig = async (eventData: { source: string; data: any }) => {
   const { source } = eventData;
   if (source === emitterSource.PAGE_SHOW) return;
 
-  starList.value = [];
-  pagination.value.pageIndex = 1;
+  defaultConfig();
+
   infiniteId.value = Date.now();
 };
 </script>
