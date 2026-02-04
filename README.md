@@ -186,8 +186,8 @@ sudo yum install xdg-utils
 {
   "analyze": [
     {
-      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 唯一标识(UUID v4)，不可重复
-      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(建议不重复)
+      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 数据唯一uuid标识(不可重复)
+      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(不可重复)
       "name": "Parse", // 名称(展示用)
       "url": "https://xxx.top/?jx=", // <3.4.1 **弃用**> 解析源地址(仅兼容旧版本)
       "api": "https://xxx.top/?jx=", // <3.4.1 启用> 解析源地址(推荐使用)
@@ -202,8 +202,8 @@ sudo yum install xdg-utils
   ],
   "iptv": [
     {
-      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 唯一标识(UUID v4)，不可重复
-      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(建议不重复)
+      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 数据唯一uuidv标识(不可重复)
+      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(不可重复)
       "name": "Iptv", // 名称(展示用)
       "url": "https://xxx.com/m3u/iptv.m3u", // <3.4.1 **弃用**> 直播源地址(仅兼容旧版本)
       "api": "https://xxx.com/m3u/iptv.m3u", // <3.4.1 启用> 直播源地址(推荐使用)
@@ -218,7 +218,7 @@ sudo yum install xdg-utils
   ],
   "channel": [
     {
-      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 唯一标识(UUID v4)，不可重复
+      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 数据唯一uuidv4标识(不可重复)
       "name": "Channel", // 名称(展示用)
       "url": "https://xxx.com/m3u/iptv.m3u8", // <3.4.1 **弃用**> 播放地址(仅兼容旧版本)
       "api": "https://xxx.com/m3u/iptv.m3u8", // <3.4.1 启用> 播放地址(推荐使用)
@@ -231,8 +231,8 @@ sudo yum install xdg-utils
   ],
   "sites": [
     {
-      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 唯一标识(UUID v4)，不可重复
-      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(建议不重复)
+      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 数据唯一uuidv4标识(不可重复)
+      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(不可重复)
       "name": "Film", // 名称(展示用)
       "api": "https://www.xxx.com/api.php/provide/vod/", // 接口地址
       "playUrl": "", // 配合解析去url地址
@@ -248,8 +248,8 @@ sudo yum install xdg-utils
   ],
   "drive": [
     {
-      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 唯一标识(UUID v4)，不可重复
-      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(建议不重复)
+      "id": "fddfb425-6fd9-0b39-459f-a21f69739a6e", // 数据唯一uuidv4标识(不可重复)
+      "key": "51793af6-c923-5504-85db-0ef686624dec", // <3.4.0 启用> 业务唯一标识(不可重复)
       "name": "alist", // 名称(展示用)
       "server": "http://alist.xxx.pro/", // 网盘地址
       "showAll": false, // 是否展示全部(true=全部,false=仅视频)
