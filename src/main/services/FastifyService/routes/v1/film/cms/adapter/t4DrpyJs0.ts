@@ -79,7 +79,7 @@ class T4DrpyJs0Adapter {
         vod_pic: v.vod_pic ?? '',
         vod_remarks: v.vod_remarks ?? '',
         vod_blurb: (v.vod_blurb ?? '')?.trim(),
-        vod_tag: v.vod_tag || 'file',
+        vod_tag: ['action', 'file', 'folder'].includes(v.vod_tag || 'file') ? v.vod_tag : 'file',
       }))
       .filter((v) => v.vod_id);
 
@@ -107,7 +107,7 @@ class T4DrpyJs0Adapter {
         vod_pic: v.vod_pic ?? '',
         vod_remarks: v.vod_remarks ?? '',
         vod_blurb: (v.vod_blurb ?? '')?.trim(),
-        vod_tag: v.vod_tag || 'file',
+        vod_tag: ['action', 'file', 'folder'].includes(v.vod_tag || 'file') ? v.vod_tag : 'file',
       }))
       .filter((v) => v.vod_id);
 
@@ -174,7 +174,7 @@ class T4DrpyJs0Adapter {
         vod_pic: v.vod_pic ?? '',
         vod_remarks: v.vod_remarks ?? '',
         vod_blurb: (v.vod_blurb ?? '')?.trim(),
-        vod_tag: v.vod_tag || 'file',
+        vod_tag: ['action', 'file', 'folder'].includes(v.vod_tag || 'file') ? v.vod_tag : 'file',
       }))
       .filter((v) => v.vod_id);
 
