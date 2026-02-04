@@ -152,7 +152,7 @@ export default defineConfig({
     build: {
       target: 'esnext', // for build
       rollupOptions: {
-        external: ['worker_threads', 'crypto'],
+        external: ['crypto'],
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),
         },

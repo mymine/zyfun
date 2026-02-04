@@ -14,8 +14,8 @@ import { fetchSetup } from '@/api/setting';
 import { useLocale } from '@/locales/useLocale';
 import DisclaimerView from '@/pages/Disclaimer.vue';
 import { usePlayerStore, useSettingStore } from '@/store';
-// import { start as startOSpy, stop as stopOSpy } from '@/utils/ospy';
-// import { start as startVitals, stop as stopVitals } from '@/utils/vitalsObserver';
+import { start as startOSpy, stop as stopOSpy } from '@/utils/ospy';
+import { start as startVitals, stop as stopVitals } from '@/utils/vitalsObserver';
 
 const storePlayer = usePlayerStore();
 const storeSetting = useSettingStore();
@@ -37,7 +37,7 @@ watch(
   (val) => {
     if (val.theme !== setupConf.value?.theme) storeSetting.changePreferredTheme();
     if (val.lang !== setupConf.value?.lang) storeSetting.changePreferredLang();
-    // if (val.debug !== setupConf.value?.debug) debugMode(val.debug);
+    if (val.debug !== setupConf.value?.debug) debugMode(val.debug);
 
     for (const key in val) {
       setupConf.value[key] = val[key];
@@ -75,13 +75,13 @@ const syncStore = async () => {
   storePlayer.updateConfig({ barrage, player });
 };
 
-// const debugMode = (type: boolean) => {
-//   if (type) {
-//     startVitals();
-//     startOSpy();
-//   } else {
-//     stopVitals();
-//     stopOSpy();
-//   }
-// };
+const debugMode = (type: boolean) => {
+  if (type) {
+    startVitals();
+    startOSpy();
+  } else {
+    stopVitals();
+    stopOSpy();
+  }
+};
 </script>

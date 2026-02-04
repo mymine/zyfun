@@ -127,8 +127,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(typebox@1.0.73)
       '@huolala-tech/page-spy-plugin-ospy':
-        specifier: ^2.2.10
-        version: 2.2.10
+        specifier: ^2.2.11
+        version: 2.2.11
       '@logdna/tail-file':
         specifier: ^4.0.2
         version: 4.0.2
@@ -517,11 +517,11 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2(vue@3.5.27(typescript@5.9.3))
       tdesign-vue-next:
-        specifier: ^1.18.0
-        version: 1.18.0(vue@3.5.27(typescript@5.9.3))
+        specifier: ^1.18.1
+        version: 1.18.1(vue@3.5.27(typescript@5.9.3))
       tldts:
-        specifier: ^7.0.21
-        version: 7.0.21
+        specifier: ^7.0.22
+        version: 7.0.22
       tokenx:
         specifier: ^1.3.0
         version: 1.3.0
@@ -1513,11 +1513,11 @@ packages:
   '@huolala-tech/page-spy-plugin-data-harbor@2.2.10':
     resolution: {integrity: sha512-3nfzoswpGw/ejXCpf9GdHpJ3SqEA2z9jsF9CkEQqx0d+bGyotXPAsJP0iFNvSEYppaUyHsXzxEeOdAeoWSIOPA==}
 
-  '@huolala-tech/page-spy-plugin-ospy@2.2.10':
-    resolution: {integrity: sha512-Gv8I7dhSkE/SPAJSnz2TAin2emwrEGYpSOharn8kP1MRmFc9/QRaxRBGdu4dWHkSX+YO7QujMK2PEF5NU/509g==}
+  '@huolala-tech/page-spy-plugin-ospy@2.2.11':
+    resolution: {integrity: sha512-nD8hy5Wgx1O/ZqRuwGYPkLX/mXfzvjmJwQVMJYAiDP/6cHbwLiSFYc6WNfZ8IkyhcHmQ4cfQh/Uk7TLFn4VDIA==}
 
-  '@huolala-tech/page-spy-plugin-rrweb@2.2.4':
-    resolution: {integrity: sha512-UVXlElA64PyTesaWSbLGDlX6eHNJ/il9BZV36D6fBItW+6QZd77XDn+37cVEVXEbb1cOuwjlXPmGtdi8FC2XbA==}
+  '@huolala-tech/page-spy-plugin-rrweb@2.2.5':
+    resolution: {integrity: sha512-nbovXaTTX06yet0Qdh8aSSomPXmDah1ItQ4kwyCGgb3/qTs8WXECBVJka4/UhQuz7NJaB+mHCE5e8eharjhnBQ==}
 
   '@huolala-tech/page-spy-types@2.2.4':
     resolution: {integrity: sha512-5mYeNslM3i3H+2obdekF5q3y7iErHCgKOpsD9JDBdLLnE/+TQM77TAdSu89Q3BFxLdG3NEkxYeDDJqQbxRrr/A==}
@@ -2270,8 +2270,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rrweb/types@2.0.0-alpha.18':
-    resolution: {integrity: sha512-iMH3amHthJZ9x3gGmBPmdfim7wLGygC2GciIkw2A6SO8giSn8PHYtRT8OKNH4V+k3SZ6RSnYHcTQxBA7pSWZ3Q==}
+  '@rrweb/types@2.0.0-alpha.20':
+    resolution: {integrity: sha512-RbnDgKxA/odwB1R4gF7eUUj+rdSrq6ROQJsnMw7MIsGzlbSYvJeZN8YY4XqU0G6sKJvXI6bSzk7w/G94jNwzhw==}
+
+  '@rrweb/utils@2.0.0-alpha.20':
+    resolution: {integrity: sha512-MTQOmhPRe39C0fYaCnnVYOufQsyGzwNXpUStKiyFSfGLUJrzuwhbRoUAKR5w6W2j5XuA0bIz3ZDIBztkquOhLw==}
 
   '@sigstore/bundle@4.0.0':
     resolution: {integrity: sha512-NwCl5Y0V6Di0NexvkTqdoVfmjTaQwoLM236r89KEojGmq/jMls8S+zb7yOwAPdXvbwfKDlP+lmXgAL4vKSQT+A==}
@@ -5433,9 +5436,6 @@ packages:
   fetch-socks@1.3.2:
     resolution: {integrity: sha512-vkH5+Zgj2yEbU57Cei0iyLgTZ4OkEKJj56Xu3ViB5dpsl599JgEooQ3x6NVagIFRHWnWJ+7K0MO0aIV1TMgvnw==}
 
-  fflate@0.4.8:
-    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
-
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
@@ -8452,14 +8452,14 @@ packages:
   roughjs@4.6.6:
     resolution: {integrity: sha512-ZUz/69+SYpFN/g/lUlo2FXcIjRkSu3nDarreVdGGndHEBJ6cXPdKguS8JGxwj5HA5xIbVKSmLgr5b3AWxtRfvQ==}
 
-  rrdom@0.1.7:
-    resolution: {integrity: sha512-ZLd8f14z9pUy2Hk9y636cNv5Y2BMnNEY99wxzW9tD2BLDfe1xFxtLjB4q/xCBYo6HRe0wofzKzjm4JojmpBfFw==}
+  rrdom@2.0.0-alpha.20:
+    resolution: {integrity: sha512-hoqjS4662LtBp82qEz9GrqU36UpEmCvTA2Hns3qdF7cklLFFy3G+0Th8hLytJENleHHWxsB5nWJ3eXz5mSRxdQ==}
 
-  rrweb-snapshot@2.0.0-alpha.4:
-    resolution: {integrity: sha512-KQ2OtPpXO5jLYqg1OnXS/Hf+EzqnZyP5A+XPqBCjYpj3XIje/Od4gdUwjbFo3cVuWq5Cw5Y1d3/xwgIS7/XpQQ==}
+  rrweb-snapshot@2.0.0-alpha.20:
+    resolution: {integrity: sha512-YTNf9YVeaGRo/jxY3FKBge2c/Ojd/KTHmuWloUSB+oyPXuY73ZeeG873qMMmhIpqEn7hn7aBF1eWEQmP7wjf8A==}
 
-  rrweb@2.0.0-alpha.4:
-    resolution: {integrity: sha512-wEHUILbxDPcNwkM3m4qgPgXAiBJyqCbbOHyVoNEVBJzHszWEFYyTbrZqUdeb1EfmTRC2PsumCIkVcomJ/xcOzA==}
+  rrweb@2.0.0-alpha.20:
+    resolution: {integrity: sha512-CZKDlm+j1VA50Ko3gnMbpvguCAleljsTNXPnVk9aeNP8o6T6kolRbISHyDZpqZ4G+bdDLlQOignPP3jEsXs8Gg==}
 
   run-applescript@7.1.0:
     resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
@@ -9029,8 +9029,8 @@ packages:
     peerDependencies:
       omi: '>=7.6.17'
 
-  tdesign-vue-next@1.18.0:
-    resolution: {integrity: sha512-JSLb82fXAsO0FXFuMBCiLDSIvUlqG2bZ1CkWOLYfE4IFyPQ2hwjTxTsJRugVoLRYBuhiIKprhmoucZ4tlgWrGg==}
+  tdesign-vue-next@1.18.1:
+    resolution: {integrity: sha512-aBF/71BcpdxlPWuHRd2rRkXUCprMKb6CZwwAd9xxQKY5FWrTchrpOwIxdD5z4L89Jqh08A2vg4TWAPylB8xO7g==}
     engines: {node: '>= 18'}
     peerDependencies:
       vue: '>=3.1.0'
@@ -9117,11 +9117,11 @@ packages:
     resolution: {integrity: sha512-azl+t0z7pw/z958Gy9svOTuzqIk6xq+NSheJzn5MMWtWTFywIacg2wUlzKFGtt3cthx0r2SxMK0yzJOR0IES7Q==}
     engines: {node: '>=14.0.0'}
 
-  tldts-core@7.0.21:
-    resolution: {integrity: sha512-oVOMdHvgjqyzUZH1rOESgJP1uNe2bVrfK0jUHHmiM2rpEiRbf3j4BrsIc6JigJRbHGanQwuZv/R+LTcHsw+bLA==}
+  tldts-core@7.0.22:
+    resolution: {integrity: sha512-KgbTDC5wzlL6j/x6np6wCnDSMUq4kucHNm00KXPbfNzmllCmtmvtykJHfmgdHntwIeupW04y8s1N/43S1PkQDw==}
 
-  tldts@7.0.21:
-    resolution: {integrity: sha512-Plu6V8fF/XU6d2k8jPtlQf5F4Xx2hAin4r2C2ca7wR8NK5MbRTo9huLUWRe28f3Uk8bYZfg74tit/dSjc18xnw==}
+  tldts@7.0.22:
+    resolution: {integrity: sha512-nqpKFC53CgopKPjT6Wfb6tpIcZXHcI6G37hesvikhx0EmUGPkZrujRyAjgnmp1SHNgpQfKVanZ+KfpANFt2Hxw==}
     hasBin: true
 
   tmp-promise@3.0.3:
@@ -11093,20 +11093,20 @@ snapshots:
       copy-to-clipboard: 3.3.3
       fflate: 0.8.2
 
-  '@huolala-tech/page-spy-plugin-ospy@2.2.10':
+  '@huolala-tech/page-spy-plugin-ospy@2.2.11':
     dependencies:
       '@huolala-tech/page-spy-base': 2.2.4
       '@huolala-tech/page-spy-browser': 2.2.10
       '@huolala-tech/page-spy-plugin-data-harbor': 2.2.10
-      '@huolala-tech/page-spy-plugin-rrweb': 2.2.4
+      '@huolala-tech/page-spy-plugin-rrweb': 2.2.5
       '@huolala-tech/page-spy-types': 2.2.4
 
-  '@huolala-tech/page-spy-plugin-rrweb@2.2.4':
+  '@huolala-tech/page-spy-plugin-rrweb@2.2.5':
     dependencies:
       '@babel/runtime': 7.28.4
       '@huolala-tech/page-spy-base': 2.2.4
       '@huolala-tech/page-spy-types': 2.2.4
-      rrweb: 2.0.0-alpha.4
+      rrweb: 2.0.0-alpha.20
 
   '@huolala-tech/page-spy-types@2.2.4':
     dependencies:
@@ -11893,7 +11893,9 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.55.1':
     optional: true
 
-  '@rrweb/types@2.0.0-alpha.18': {}
+  '@rrweb/types@2.0.0-alpha.20': {}
+
+  '@rrweb/utils@2.0.0-alpha.20': {}
 
   '@sigstore/bundle@4.0.0':
     dependencies:
@@ -12072,7 +12074,7 @@ snapshots:
       marked-highlight: 2.2.3(marked@12.0.2)
       omi-vueify: 0.0.12(omi@7.7.13)(vue@3.5.27(typescript@5.9.3))
       tdesign-icons-vue-next: 0.4.2(vue@3.5.27(typescript@5.9.3))
-      tdesign-vue-next: 1.18.0(vue@3.5.27(typescript@5.9.3))
+      tdesign-vue-next: 1.18.1(vue@3.5.27(typescript@5.9.3))
       tdesign-web-components: 1.2.10(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       vue: 3.5.27(typescript@5.9.3)
     transitivePeerDependencies:
@@ -15532,8 +15534,6 @@ snapshots:
       socks: 2.8.7
       undici: 6.21.2
 
-  fflate@0.4.8: {}
-
   fflate@0.8.2: {}
 
   figures@3.2.0:
@@ -18977,22 +18977,24 @@ snapshots:
       points-on-curve: 0.2.0
       points-on-path: 0.2.1
 
-  rrdom@0.1.7:
+  rrdom@2.0.0-alpha.20:
     dependencies:
-      rrweb-snapshot: 2.0.0-alpha.4
+      rrweb-snapshot: 2.0.0-alpha.20
 
-  rrweb-snapshot@2.0.0-alpha.4: {}
-
-  rrweb@2.0.0-alpha.4:
+  rrweb-snapshot@2.0.0-alpha.20:
     dependencies:
-      '@rrweb/types': 2.0.0-alpha.18
+      postcss: 8.5.6
+
+  rrweb@2.0.0-alpha.20:
+    dependencies:
+      '@rrweb/types': 2.0.0-alpha.20
+      '@rrweb/utils': 2.0.0-alpha.20
       '@types/css-font-loading-module': 0.0.7
       '@xstate/fsm': 1.6.5
       base64-arraybuffer: 1.0.2
-      fflate: 0.4.8
       mitt: 3.0.1
-      rrdom: 0.1.7
-      rrweb-snapshot: 2.0.0-alpha.4
+      rrdom: 2.0.0-alpha.20
+      rrweb-snapshot: 2.0.0-alpha.20
 
   run-applescript@7.1.0: {}
 
@@ -19683,7 +19685,7 @@ snapshots:
       omi: 7.7.13
       tailwind-merge: 2.6.0
 
-  tdesign-vue-next@1.18.0(vue@3.5.27(typescript@5.9.3)):
+  tdesign-vue-next@1.18.1(vue@3.5.27(typescript@5.9.3)):
     dependencies:
       '@babel/runtime': 7.28.4
       '@popperjs/core': 2.11.8
@@ -19802,11 +19804,11 @@ snapshots:
 
   tinyspy@4.0.4: {}
 
-  tldts-core@7.0.21: {}
+  tldts-core@7.0.22: {}
 
-  tldts@7.0.21:
+  tldts@7.0.22:
     dependencies:
-      tldts-core: 7.0.21
+      tldts-core: 7.0.22
 
   tmp-promise@3.0.3:
     dependencies:
