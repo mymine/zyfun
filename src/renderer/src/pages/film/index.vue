@@ -396,6 +396,10 @@ const loadMoreSearch = async (): Promise<number> => {
       page: pageIndex,
     });
 
+    if (isArray(resp.list) && !isArrayEmpty(resp.list) && config.value.extra.filter) {
+      resp.list = resp.list.filter((item: ICmsInfo) => item.vod_name.includes(searchValue.value));
+    }
+
     if (!isArray(resp.list) || isArrayEmpty(resp.list)) {
       return switchNextSearchSite();
     }
