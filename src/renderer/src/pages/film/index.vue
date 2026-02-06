@@ -367,8 +367,12 @@ const loadMoreCategory = async (): Promise<number> => {
 
   // Load category data
   const length = await getCmsCategory(source);
-  if (length !== 0) pagination.value.pageIndex++;
-  return length;
+  if (length > 0) {
+    pagination.value.pageIndex++;
+    return length;
+  }
+
+  return 0;
 };
 
 const loadMoreSearch = async (): Promise<number> => {
@@ -437,6 +441,24 @@ const loadMore = async ($state: ILoadStateHdandler) => {
     }
 
     const length = searchValue.value ? await loadMoreSearch() : await loadMoreCategory();
+
+    // Dynamic remove reccommend class
+    if (!searchValue.value && length <= 0 && classList.value.length > 0) {
+      const tid = active.value.folder || active.value.class;
+      if (tid !== '') return 0;
+
+      classList.value.shift();
+
+      if (classList.value.length > 0) {
+        active.value.class = classList.value[0].type_id;
+
+        resetPagination();
+        infiniteId.value = Date.now();
+      }
+
+      return;
+    }
+
     length === 0 ? $state.complete() : $state.loaded();
   } catch (error) {
     console.error(`Failed to load more data:`, error);
