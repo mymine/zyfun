@@ -443,19 +443,17 @@ const loadMore = async ($state: ILoadStateHdandler) => {
     const length = searchValue.value ? await loadMoreSearch() : await loadMoreCategory();
 
     // Dynamic remove reccommend class
-    if (!searchValue.value && length <= 0 && classList.value.length > 0) {
-      const tid = active.value.folder || active.value.class;
-      if (tid !== '') return 0;
-
+    if (
+      !searchValue.value &&
+      length === 0 &&
+      filmList.value.length === 0 &&
+      classList.value.length > 1 &&
+      (active.value.folder || active.value.class) === ''
+    ) {
       classList.value.shift();
-
-      if (classList.value.length > 0) {
-        active.value.class = classList.value[0].type_id;
-
-        resetPagination();
-        infiniteId.value = Date.now();
-      }
-
+      active.value.class = classList.value[0].type_id;
+      resetPagination();
+      infiniteId.value = Date.now();
       return;
     }
 
