@@ -26,6 +26,7 @@ reject:
   - '@vitest/web-worker'
 
   # Others
+  - eslint
   - monaco-editor
   - turndown
   - undici

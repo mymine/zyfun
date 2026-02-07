@@ -1,6 +1,6 @@
 {
   "name": "zyfun",
-  "version": "3.4.1-rc18",
+  "version": "3.4.1",
   "private": true,
   "description": "Discover the world by watching movies.",
   "main": "./out/main/index.js",
@@ -76,7 +76,7 @@
     "zeromq": "^6.5.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.2.0",
+    "@antfu/eslint-config": "^7.3.0",
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
@@ -86,7 +86,7 @@
     "@electron/notarize": "^3.1.1",
     "@fastify/cors": "^11.2.0",
     "@fastify/multipart": "^9.4.0",
-    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger": "^9.7.0",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@huolala-tech/page-spy-plugin-ospy": "^2.2.11",
     "@logdna/tail-file": "^4.0.2",
@@ -231,7 +231,7 @@
     "vite": "npm:rolldown-vite@7.3.0",
     "vite-plugin-vue-devtools": "^8.0.6",
     "vite-svg-loader": "^5.1.0",
-    "vitest": "3.2.4",
+    "vitest": "^3.2.4",
     "vue": "^3.5.27",
     "vue-i18n": "^11.2.8",
     "vue-router": "^5.0.2",
