@@ -458,7 +458,7 @@ sudo yum install xdg-utils
 
 [rank-hellogithub-shield]: https://api.hellogithub.com/v1/widgets/recommend.svg?rid=c54bf4d457b64ee7a84fd1ea0b36419a
 [rank-hellogithub-link]: https://hellogithub.com/repository/Hunlongyu/ZY-Player
-[rank-trendshift-shield]: https://trendshift.io/api/badge/repositories/9742
-[rank-trendshift-link]: https://trendshift.io/repositories/9742
+[rank-trendshift-shield]: https://trendshift.io/api/badge/repositories/20293
+[rank-trendshift-link]: https://trendshift.io/repositories/20293
 [rank-producthunt-shield]: https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1019733&theme=light
 [rank-producthunt-link]: https://www.producthunt.com/products/zyfun?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-zyfun
