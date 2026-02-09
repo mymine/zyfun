@@ -64,8 +64,11 @@ const tvboxToStandard = (config: Tvbox, baseUrl: string, type: string): Partial<
 
       const apiMap: Record<string, number> = {
         csp_XBPQ: 9,
-        csp_XYQ: 10,
+        csp_XYQHiker: 10,
         csp_AppYsV2: 11,
+        csp_AppGet: 15,
+        csp_AppQi: 16,
+        csp_AppFox: 17,
       };
 
       if (api in apiMap) return apiMap[api];
@@ -117,8 +120,8 @@ const tvboxToStandard = (config: Tvbox, baseUrl: string, type: string): Partial<
         (item) =>
           [0, 1, 4].includes(item.type) ||
           (item.type === 3 &&
-            (item.api === 'csp_XBPQ' ||
-              item.api === 'csp_XYQ' ||
+            (['csp_XBPQ', 'csp_XYQHiker'].includes(type) ||
+              // ['csp_XBPQ', 'csp_XYQHiker', 'csp_AppGet', 'csp_AppQi', 'csp_AppFox'].includes(type) ||
               item.api.endsWith('.js') ||
               item.api.endsWith('.py'))),
       )
