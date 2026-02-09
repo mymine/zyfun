@@ -2,6 +2,10 @@
 
 > All notable changes to this project will be documented in this file.
 
+## 3.4.2
+
+- 修复: 实验室-写源工具 文件目录在未创建时打开失败
+
 
 ## 3.4.1
 
