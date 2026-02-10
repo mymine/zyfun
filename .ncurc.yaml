@@ -28,5 +28,4 @@ reject:
   # Others
   - eslint
   - monaco-editor
-  - turndown
   - undici
