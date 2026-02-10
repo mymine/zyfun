@@ -283,41 +283,54 @@ const api: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     `/${API_PREFIX}/check`,
     { schema: getCheckSchema },
-    async (req: FastifyRequest<{ Querystring: { uuid: string } & { type: 'simple' | 'complete' } }>) => {
+    async (req: FastifyRequest<{ Querystring: { uuid: string } & { type: 'search' | 'simple' | 'complete' } }>) => {
       const { uuid, type } = req.query || {};
       const adapter = await prepare(uuid);
 
-      const home = await adapter.home();
-      if (isNil(home.class) || isArrayEmpty(home.class)) {
-        return { code: 0, msg: 'ok', data: false };
-      }
+      const checkSearch = async () => {
+        const keywords = ['我', '你', '他'];
+        const wd = keywords[Math.floor(Math.random() * keywords.length)];
+        const search = await adapter.search({ wd });
+        return !(isNil(search?.list) || isArrayEmpty(search.list) || search.list[0]?.vod_id === 'no_data');
+      };
 
-      const category = await adapter.category({ tid: String(home.class[0]) });
-      if (isNil(category?.list) || isArrayEmpty(category.list) || category.list[0]?.vod_id === 'no_data') {
-        return { code: 0, msg: 'ok', data: false };
-      }
+      const checkMain = async () => {
+        const home = await adapter.home();
+        if (isNil(home.class) || isArrayEmpty(home.class)) return false;
 
-      if (type === 'simple') {
-        return { code: 0, msg: 'ok', data: true };
-      }
+        const tid = home.class[Math.floor(Math.random() * home.class.length)]?.type_id;
+        const category = await adapter.category({ tid });
+        if (isNil(category?.list) || isArrayEmpty(category.list) || category.list[0]?.vod_id === 'no_data')
+          return false;
 
-      const detail = await adapter.detail({ ids: String(category.list[0]?.vod_id) });
-      if (
-        isNil(detail?.list) ||
-        isArrayEmpty(detail.list) ||
-        !detail.list[0]?.vod_play_url ||
-        detail.list[0]?.vod_play_from
-      ) {
-        return { code: 0, msg: 'ok', data: false };
-      }
+        const ids = category.list[Math.floor(Math.random() * category.list.length)]?.vod_id;
+        const detail = await adapter.detail({ ids });
+        if (
+          isNil(detail?.list) ||
+          isArrayEmpty(detail.list) ||
+          !detail.list[0]?.vod_play_url ||
+          !detail.list[0]?.vod_play_from
+        ) {
+          return false;
+        }
 
-      const vod_episode = formatEpisode(detail.list[0].vod_play_from, detail.list[0].vod_play_url)!;
-      const resPlay = await adapter.play({
-        flag: Object.keys(vod_episode)[0] || '',
-        play: vod_episode[Object.keys(vod_episode)[0]]?.[0].link || '',
-      });
-      if (isNil(resPlay?.url)) {
-        return { code: 0, msg: 'ok', data: false };
+        const vod_episode = formatEpisode(detail.list[0].vod_play_from, detail.list[0].vod_play_url)!;
+        const resPlay = await adapter.play({
+          flag: Object.keys(vod_episode)[0] || '',
+          play: vod_episode[Object.keys(vod_episode)[0]]?.[0].link || '',
+        });
+        return !!resPlay?.url;
+      };
+
+      const typeCheckMap: Record<string, (() => Promise<boolean>)[]> = {
+        search: [checkSearch],
+        simple: [checkMain],
+        complete: [checkSearch, checkMain],
+      };
+
+      const checks = typeCheckMap[type] || [];
+      for (const fn of checks) {
+        if (!(await fn())) return { code: 0, msg: 'ok', data: false };
       }
 
       return { code: 0, msg: 'ok', data: true };
