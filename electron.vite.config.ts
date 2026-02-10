@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import process from 'node:process';
 
 import { TDesignResolver } from '@tdesign-vue-next/auto-import-resolver';
 import vue from '@vitejs/plugin-vue';

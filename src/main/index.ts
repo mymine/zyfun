@@ -42,6 +42,10 @@ const setupEnv = () => {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // ignore TLS certificate errors
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'; // disable security warnings
 
+  process.on('warning', (warning) => {
+    logger.warn(`Capture Warning: ${warning.message}`);
+  });
+
   // in production mode, handle uncaught exception and unhandled rejection globally
   if (!isDev) {
     // handle uncaught exception
