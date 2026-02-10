@@ -123,7 +123,7 @@ class ConnectService extends PythonService {
     this.checkBinary();
     await this.installDep();
 
-    const args = ['main.py', '--ctrl-port', String(this.ctrlPort)];
+    const args = ['uv', 'run', 'main.py', '--ctrl-port', String(this.ctrlPort)];
 
     const pids = await this.matchProcess(args.join(' '));
 
@@ -159,7 +159,7 @@ class ConnectService extends PythonService {
       }
 
       if (!this.pids.length) {
-        const args = ['main.py', '--ctrl-port', String(this.ctrlPort)];
+        const args = ['uv', 'run', 'main.py', '--ctrl-port', String(this.ctrlPort)];
         const pids = await this.matchProcess(args.join(' '));
         if (pids.length) this.pids = pids;
       }
