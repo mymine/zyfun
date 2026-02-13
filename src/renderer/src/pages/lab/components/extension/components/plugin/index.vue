@@ -76,7 +76,7 @@ import type { IModels } from '@shared/types/db';
 import { cloneDeep } from 'es-toolkit';
 import PQueue from 'p-queue';
 import { MessagePlugin } from 'tdesign-vue-next';
-import { computed, onActivated, onMounted, ref } from 'vue';
+import { computed, onActivated, onMounted, ref, toRaw } from 'vue';
 
 import { fetchPluginPage } from '@/api/plugin';
 import DialogDocument from '@/components/dialog-docment/index.vue';
@@ -255,9 +255,9 @@ const handleOperation = async (type: string, payload: any) => {
       formData.value = { id: '' };
       dialogState.value.visibleForm = true;
     },
-    enable: () => enableItem(payload),
-    disable: () => disableItem(payload),
-    delete: () => uninstallItem(payload),
+    enable: () => enableItem(toRaw(payload)),
+    disable: () => disableItem(toRaw(payload)),
+    delete: () => uninstallItem(toRaw(payload)),
     preview: () => window.electron.ipcRenderer.invoke(IPC_CHANNEL.WINDOW_BROWSER, payload.web),
     info: () => {
       const cloneDoc = cloneDeep(payload);
