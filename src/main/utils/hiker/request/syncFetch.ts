@@ -55,8 +55,6 @@ interface RequestOptions {
 const fetch = (url: string, options: RequestOptions = {}) => {
   try {
     const method: HttpMethod = (options.method || 'GET').toUpperCase() as HttpMethod;
-    url = new URL(url).href;
-
     const headers = headersPascalCase(options?.headers || {});
 
     const config: {
@@ -74,6 +72,9 @@ const fetch = (url: string, options: RequestOptions = {}) => {
 
     if (!config.headers['User-Agent']) {
       config.headers['User-Agent'] = MOBILE_UA;
+    }
+    if (!config.headers?.Accept) {
+      config.headers!.Accept = '*/*';
     }
 
     const contentType = config.headers?.['Content-Type'] || '';

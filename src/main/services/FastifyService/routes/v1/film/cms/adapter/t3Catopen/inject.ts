@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 
-import { batchFetch, fetch } from '@main/utils/hiker/request/syncFetch';
+import { batchFetch, fetch } from '@main/utils/hiker/request/asyncAxios';
 import { headersPascalCase } from '@shared/modules/headers';
 
 const hasPropertyIgnoreCase = (obj: Record<string, string>, propertyName: string) => {
@@ -12,7 +12,10 @@ const valueStartsWith = (obj: Record<string, string>, propertyName: string, pref
   return key !== undefined && obj[key].startsWith(prefix);
 };
 
-const req = (url: string, cobj: Record<string, any>): { content: string; headers?: Record<string, string> } => {
+const req = async (
+  url: string,
+  cobj: Record<string, any>,
+): Promise<{ content: string; headers?: Record<string, string> }> => {
   const obj = Object.assign({}, cobj);
 
   if (obj.data) {
@@ -37,7 +40,7 @@ const req = (url: string, cobj: Record<string, any>): { content: string; headers
   obj.headers = headersPascalCase(obj.headers);
 
   const res: { content: string; headers?: Record<string, string> } = { content: '' };
-  let resp: any = fetch(url, obj);
+  let resp: any = await fetch(url, obj);
   if (obj.withHeaders) {
     resp = JSON.parse(resp!);
     res.content = resp.body;
@@ -54,4 +57,5 @@ const req = (url: string, cobj: Record<string, any>): { content: string; headers
 };
 
 export { batchFetch, req };
-export { joinUrl, local, pd, pdfa, pdfh } from '@main/utils/hiker';
+
+export { aesX, BaseSpider, desX, getProxy, joinUrl, local, md5X, rsaX } from '@main/utils/hiker';

@@ -1,20 +1,32 @@
 import { Buffer } from 'node:buffer';
 import path from 'node:path';
-import process from 'node:process';
 
 import { headersPascalCase } from '@shared/modules/headers';
 import { toString } from '@shared/modules/toString';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
+import FormData from 'form-data';
 import fs from 'fs-extra';
 import JSON5 from 'json5';
 import mime from 'mime-types';
 import protobuf from 'protobufjs';
 import qs from 'qs';
-import type { Options } from 'sync-request';
-import syncRequest, { FormData } from 'sync-request';
 
 import { MOBILE_UA, PC_UA } from '../ua';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD';
+
+interface RequestOptions {
+  method?: HttpMethod;
+  timeout?: number;
+  body?: any;
+  headers?: Record<string, string>;
+  redirect?: 0 | 1 | boolean;
+  toHex?: boolean;
+  onlyHeaders?: boolean;
+  withHeaders?: boolean;
+  withStatusCode?: boolean;
+}
 
 const getTimeout = (timeout: number | undefined | null) => {
   const baseTimeout = 5000;
@@ -38,53 +50,22 @@ const isLikelyPath = (p: string) => {
   return false;
 };
 
-const serialize2dict = (headers: { [key: string]: any } = {}) => {
-  const headersDict = {};
-
-  for (const [key, value] of Object.entries(headers)) {
-    if (key.toLowerCase() === 'set-cookie') {
-      headersDict[key] = Array.isArray(value) ? value : [value];
-    } else {
-      headersDict[key] = [value];
-    }
-  }
-  return headersDict;
-};
-
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD';
-
-interface RequestOptions {
-  method?: HttpMethod;
-  timeout?: number;
-  body?: Record<string, any> | string | Buffer;
-  headers?: { [key: string]: string };
-  redirect?: 0 | 1 | boolean;
-  toHex?: boolean;
-  onlyHeaders?: boolean;
-  withHeaders?: boolean;
-  withStatusCode?: boolean;
-}
-
-const fetch = (url: string, options: RequestOptions = {}) => {
+const fetch = async (url: string, options: RequestOptions = {}) => {
   try {
-    const method: HttpMethod = (options.method || 'GET').toUpperCase() as HttpMethod;
-    const headers = headersPascalCase(options?.headers || {});
+    const method = (options.method || 'GET').toUpperCase() as HttpMethod;
+    const headers = headersPascalCase(options.headers || {});
 
-    const config: {
-      headers: Record<string, any>;
-      timeout: number;
-      followRedirects: boolean;
-      form?: FormData;
-      body?: string | Buffer | Uint8Array | FormData | Record<string, any>;
-      json?: object;
-    } = {
+    const config: AxiosRequestConfig = {
+      url,
+      method,
       headers,
       timeout: getTimeout(options?.timeout),
-      followRedirects: options?.redirect !== false,
+      maxRedirects: options?.redirect === false ? 0 : undefined,
+      responseType: 'arraybuffer',
     };
 
-    if (!config.headers['User-Agent']) {
-      config.headers['User-Agent'] = MOBILE_UA;
+    if (!config.headers?.['User-Agent']) {
+      config.headers!['User-Agent'] = MOBILE_UA;
     }
     if (!config.headers?.Accept) {
       config.headers!.Accept = '*/*';
@@ -99,22 +80,19 @@ const fetch = (url: string, options: RequestOptions = {}) => {
 
     if (method !== 'GET') {
       if (contentType.includes('application/x-www-form-urlencoded')) {
-        const body = qs.parse(options.body as string);
-        const fd = new FormData();
-        Object.entries(body).forEach(([key, value]) => {
-          fd.append(key, value as string);
-        });
-        config.form = fd;
-      } else if (['text/plain', 'text/html', 'text/xml'].includes(contentType)) {
-        config.body = options.body;
+        const body = qs.stringify(qs.parse(options.body));
+        config.data = body;
+      } else if (['text/plain', 'text/html', 'text/xml'].some((t) => contentType.includes(t))) {
+        config.data = options.body;
       } else if (contentType.includes('multipart/form-data')) {
         const fd = new FormData();
-        if (isLikelyPath(options.body as string)) {
-          fd.append('file', fs.readFileSync(options.body as string), path.basename(options.body as string));
+        if (isLikelyPath(options.body)) {
+          fd.append('file', fs.readFileSync(options.body), path.basename(options.body));
         } else {
-          fd.append('file', options.body as string, 'file.txt');
+          fd.append('file', options.body, 'file.txt');
         }
-        config.form = fd;
+        Object.assign(headers, fd.getHeaders());
+        return fd;
       } else if (contentType.includes('application/octet-stream')) {
         let raw: Buffer;
         if (isLikelyPath(options.body as string)) {
@@ -122,7 +100,7 @@ const fetch = (url: string, options: RequestOptions = {}) => {
         } else {
           raw = Buffer.from(options.body as string);
         }
-        config.body = raw;
+        config.data = raw;
       } else if (contentType.includes('application/x-protobuf')) {
         let raw: Buffer | Uint8Array;
         if (
@@ -147,24 +125,22 @@ const fetch = (url: string, options: RequestOptions = {}) => {
             raw = Buffer.from(options.body as string);
           }
         }
-        config.body = raw;
+        config.data = raw;
       } else {
-        const body = qs.parse(options.body as string);
-        config.json = body;
+        if (!contentType) config.headers!['Content-Type'] = 'application/json';
+        const body = qs.parse(options.body);
+        config.data = JSON.stringify(body);
       }
     }
-    // json和form会自动设置Content-Type
-    if (config.json || config.form) delete config.headers['Content-Type'];
 
     // console.warn(`[request] url: ${url} | method: ${method} | options: ${JSON.stringify(config)}`);
 
-    const resp = syncRequest(method, url, config as Options);
-    // @ts-expect-error override getBody
+    const resp: AxiosResponse<Buffer> = await axios(config);
+    // @ts-expect-error custom method
     resp.getBody = function (encoding: BufferEncoding | undefined): string | Buffer {
-      return encoding ? this.body.toString(encoding) : this.body;
+      const buffer = Buffer.from(resp.data);
+      return encoding ? buffer.toString(encoding) : buffer;
     };
-    // @ts-expect-error override headers
-    resp.headers = serialize2dict(resp.headers);
 
     const { onlyHeaders, withHeaders, withStatusCode, toHex } = options || {};
 
@@ -172,6 +148,7 @@ const fetch = (url: string, options: RequestOptions = {}) => {
       return toString(resp.headers);
     }
 
+    // @ts-expect-error custom method
     const content = toHex ? resp.getBody('hex') : resp.getBody(charset);
 
     if (!(withHeaders || withStatusCode)) {
@@ -180,7 +157,7 @@ const fetch = (url: string, options: RequestOptions = {}) => {
 
     return toString({
       headers: resp.headers,
-      statusCode: resp.statusCode,
+      statusCode: resp.status,
       body: content,
     });
   } catch (error) {
@@ -191,44 +168,44 @@ const fetch = (url: string, options: RequestOptions = {}) => {
 
 const request = fetch;
 
-const fetchCookie = (url: string, options: RequestOptions = {}) => {
+const fetchCookie = async (url: string, options: RequestOptions = {}) => {
   if (options?.withHeaders) delete options.withHeaders;
   if (options?.withStatusCode) delete options.withStatusCode;
   if (options?.toHex) delete options.toHex;
 
   options = Object.assign(options, { onlyHeaders: true });
 
-  const headerStr = fetch(url, options) || '{}';
-  const headerObj = JSON5.parse(headerStr);
+  const headerStr = (await fetch(url, options)) || '{}';
+  const headerObj = JSON5.parse(headerStr as string);
   const setCk = Object.keys(headerObj).find((it) => it.toLowerCase() === 'set-cookie');
   const cookie = setCk ? headerObj[setCk] : [];
   return JSON.stringify(cookie);
 };
 
-const post = (url: string, options: RequestOptions = {}) => {
+const post = async (url: string, options: RequestOptions = {}) => {
   options = Object.assign(options, { method: 'POST' });
-  return fetch(url, options);
+  return await fetch(url, options);
 };
 
-const fetchPC = (url: string, options: RequestOptions = {}) => {
+const fetchPC = async (url: string, options: RequestOptions = {}) => {
   options.headers = options?.headers || {};
   const headers = headersPascalCase(options.headers);
   if (!headers['User-Agent']) {
     options.headers['User-Agent'] = PC_UA;
   }
-  return fetch(url, options);
+  return await fetch(url, options);
 };
 
-const postPC = (url: string, options: RequestOptions = {}) => {
+const postPC = async (url: string, options: RequestOptions = {}) => {
   options.headers = options?.headers || {};
   const headers = headersPascalCase(options.headers);
   if (!headers['User-Agent']) {
     options.headers['User-Agent'] = PC_UA;
   }
-  return post(url, options);
+  return await post(url, options);
 };
 
-const convertBase64Image = (url: string, options: RequestOptions = {}) => {
+const convertBase64Image = async (url: string, options: RequestOptions = {}) => {
   try {
     if (options?.withHeaders) delete options.withHeaders;
     if (options?.withStatusCode) delete options.withStatusCode;
@@ -237,8 +214,9 @@ const convertBase64Image = (url: string, options: RequestOptions = {}) => {
 
     options = Object.assign(options, { toHex: true });
 
-    const hexStr = fetch(url, options);
+    const hexStr = (await fetch(url, options)) as string;
     if (!hexStr) return '';
+
     const base64String = Buffer.from(hexStr, 'hex').toString('base64');
     return `data:${mime.lookup(url) || 'image/png'};base64,${base64String}`;
   } catch (error) {
@@ -247,25 +225,26 @@ const convertBase64Image = (url: string, options: RequestOptions = {}) => {
   }
 };
 
-const batchFetch = (requests: any[], threads: number = 16) => {
+const batchFetch = async (requests: any[], threads: number = 16) => {
   const results: any[] = [];
-  const processBatch = (batchSize: number, index: number = 0) => {
+  const processBatch = async (batchSize: number, index: number = 0) => {
     if (index < requests.length) {
       const batch = requests.slice(index, index + batchSize);
       for (const request of batch) {
         try {
-          const response = fetch(request.url, request.options);
+          const response = await fetch(request.url, request.options);
           results.push(response);
         } catch (error) {
           results.push(`Request to ${request.url} failed: ${(error as Error).message}`);
         }
       }
-      processBatch(batchSize, index + batchSize);
+
+      await processBatch(batchSize, index + batchSize);
     }
   };
 
   const batchSize = requests.length > threads ? threads : requests.length;
-  processBatch(batchSize);
+  await processBatch(batchSize);
   return results;
 };
 
