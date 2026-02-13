@@ -1,6 +1,6 @@
 {
   "name": "zyfun",
-  "version": "3.4.2-rc2",
+  "version": "3.4.2-rc3",
   "private": true,
   "description": "Discover the world by watching movies.",
   "main": "./out/main/index.js",
@@ -217,6 +217,7 @@
     "stylelint": "~17.2.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-order": "~7.0.1",
+    "tar": "^7.5.7",
     "tdesign-icons-vue-next": "^0.4.2",
     "tdesign-vue-next": "^1.18.2",
     "tldts": "^7.0.23",
@@ -290,7 +291,7 @@
       "zeromq"
     ]
   },
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@10.27.0",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,cjs,mjs,cts,mts,vue}": [
       "prettier --write",
