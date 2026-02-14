@@ -69,7 +69,7 @@ def get_spider(code_hash: int, code_str: str) -> Any:
     if spider_cls is None:
         raise ImportError("Spider class not found in module")
 
-    spider = spider_cls(t4_api="http://127.0.0.1:9978/proxy?do=py ")
+    spider = spider_cls(t4_api="http://127.0.0.1:9978/proxy?do=py")
     return spider
 
 

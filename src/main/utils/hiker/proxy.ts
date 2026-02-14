@@ -1,12 +1,8 @@
-export const getPort = (): string => '9978';
+import { PORT, PROXY_API } from '@shared/config/env';
 
-export const getProxy = (local: boolean): string => {
-  return `${getUrl(local)}?do=js`;
-};
-
-export const getUrl = (_local: boolean): string => {
-  return `http://127.0.0.1:${getPort()}/proxy`;
-};
+export const getPort = (): string => PORT;
+export const getUrl = (_local: boolean): string => PROXY_API;
+export const getProxy = (local: boolean): string => `${getUrl(local)}?do=js`;
 
 export const js2Proxy = (
   dynamic: boolean,

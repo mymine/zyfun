@@ -278,6 +278,7 @@
 <script setup lang="ts">
 import 'splitpanes/dist/splitpanes.css';
 
+import { PROXY_API } from '@shared/config/env';
 import type { ISiteType } from '@shared/config/film';
 import { SITE_TYPE } from '@shared/config/film';
 import { THEME } from '@shared/config/theme';
@@ -1114,7 +1115,7 @@ const handleDataDebugProxy = async () => {
     if (!isString(url) || isStrEmpty(url)) {
       MessagePlugin.warning(t('common.message.noRequiredParam', ['url']));
       return;
-    } else if (!isHttp(url) || !url.startsWith('http://127.0.0.1:9978/')) {
+    } else if (!isHttp(url) || !url.startsWith(PROXY_API)) {
       MessagePlugin.warning(t('common.message.errRequiredParam', ['url']));
       return;
     }
@@ -1141,7 +1142,7 @@ const handleDataDebugProxyUpload = async () => {
     if (!isString(url) || isStrEmpty(url)) {
       MessagePlugin.warning(t('common.message.noRequiredParam', ['url']));
       return;
-    } else if (!isHttp(url) || !url.startsWith('http://127.0.0.1:9978/')) {
+    } else if (!isHttp(url) || !url.startsWith(PROXY_API)) {
       MessagePlugin.warning(t('common.message.errRequiredParam', ['url']));
       return;
     }

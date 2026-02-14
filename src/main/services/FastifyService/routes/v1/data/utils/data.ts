@@ -4,6 +4,7 @@ import { pathExist, readFile } from '@main/utils/file';
 import { request } from '@main/utils/request';
 import type { IDataImportType, IDataRemoteType } from '@shared/config/data';
 import { DATA_COMPLETE_TYPE, DATA_IMPORT_TYPE, DATA_SIMPLE_TYPE } from '@shared/config/data';
+import { PROXY_API } from '@shared/config/env';
 import { LOG_MODULE } from '@shared/config/logger';
 import type { ISettingKey } from '@shared/config/tblSetting';
 import { settingKeys, settingList as tblSetting } from '@shared/config/tblSetting';
@@ -178,7 +179,7 @@ const tvboxToStandard = (config: Tvbox, baseUrl: string, type: string): Partial<
         if (live.type !== 0 || !isHttp(live.url)) continue;
 
         let url = live.url;
-        if (url.startsWith('http://127.0.0.1:9978/proxy')) {
+        if (url.startsWith(PROXY_API)) {
           try {
             const parsed = new URL(url);
             url = parsed.searchParams.get('url') || '';

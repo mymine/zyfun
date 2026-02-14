@@ -21,6 +21,7 @@
 </template>
 <script setup lang="ts">
 import { APP_NAME } from '@shared/config/appinfo';
+import { SYSTEM_M3U8_AD_REMOVE_API } from '@shared/config/env';
 import { THEME } from '@shared/config/theme';
 import { isHttp, isNil, isObject, isString } from '@shared/modules/validate';
 import type {
@@ -44,7 +45,6 @@ import { emitterChannel, emitterSource } from '@/config/emitterChannel';
 import { t } from '@/locales';
 import { useSettingStore } from '@/store';
 import emitter from '@/utils/emitter';
-import { aigcChatCompletionApi } from '@/utils/env';
 
 /**
  * @see https://tdesign.tencent.com/vue-next/components/chatbot
@@ -143,7 +143,7 @@ const reloadConfig = async (eventData: { source: string; data: any }) => {
 };
 
 const chatServiceConfig: ChatServiceConfig = {
-  endpoint: aigcChatCompletionApi,
+  endpoint: SYSTEM_M3U8_AD_REMOVE_API,
   stream: true,
   protocol: 'default',
   onRequest: (params: ChatRequestParams) => {

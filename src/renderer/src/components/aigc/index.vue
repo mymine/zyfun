@@ -50,6 +50,7 @@
 </template>
 <script setup lang="ts">
 import { APP_NAME } from '@shared/config/appinfo';
+import { AIGC_CHAT_COMPLETION_API } from '@shared/config/env';
 import { THEME } from '@shared/config/theme';
 import { isHttp, isNil, isObject, isObjectEmpty } from '@shared/modules/validate';
 import type {
@@ -76,7 +77,6 @@ import { emitterChannel, emitterSource } from '@/config/emitterChannel';
 import { t } from '@/locales';
 import { useSettingStore } from '@/store';
 import emitter from '@/utils/emitter';
-import { aigcChatCompletionApi } from '@/utils/env';
 
 /**
  * @see https://tdesign.tencent.com/vue-next/components/chatbot
@@ -163,7 +163,7 @@ const defaultMessages = ref<ChatMessagesData[]>([
 ]);
 
 const chatServiceConfig = ref<ChatServiceConfig>({
-  endpoint: aigcChatCompletionApi,
+  endpoint: AIGC_CHAT_COMPLETION_API,
   stream: true,
   protocol: 'default',
   onRequest: (

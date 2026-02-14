@@ -137,7 +137,7 @@ const setupApp = async () => {
 const setupReady = () => {
   app.whenReady().then(async () => {
     // Set app user model id for windows
-    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.github.zyfun');
+    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID);
 
     // Set doh
     const hostResolver = configManager.dns;

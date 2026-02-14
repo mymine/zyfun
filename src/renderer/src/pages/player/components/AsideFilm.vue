@@ -225,6 +225,7 @@
   </div>
 </template>
 <script setup lang="tsx">
+import { PROXY_API } from '@shared/config/env';
 import {
   isArray,
   isArrayEmpty,
@@ -277,7 +278,6 @@ import type { IStorePlayer } from '@/config/player';
 import { t } from '@/locales';
 import type { IVideoOptions, IVideoProcess } from '@/types/player';
 import emitter from '@/utils/emitter';
-import { proxyApi } from '@/utils/env';
 
 import DialogDownloadView from './DialogDownload.vue';
 import DialogSettingView from './DialogSetting.vue';
@@ -755,7 +755,7 @@ const getDirectPlayUrl = async (
 
   // Direct play
   if (playRes.parse === 0 && playRes.jx !== 1) {
-    if (playRes.url.startsWith(proxyApi)) {
+    if (playRes.url.startsWith(PROXY_API)) {
       const { searchParams } = new URL(playRes.url);
       const proxyParams = Object.fromEntries(searchParams.entries());
       const proxyData = await fetchCmsProxy({ uuid: extraConf.value.active.id, ...proxyParams });
