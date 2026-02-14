@@ -81,7 +81,7 @@ import CommonNav from '@/components/common-nav/index.vue';
 import WebviewView from '@/components/webview/index.vue';
 import { emitterChannel, emitterSource } from '@/config/emitterChannel';
 import { attachContent } from '@/config/global';
-import { china as CN_PLATFORM, outher as OUTHER_PLATFORM } from '@/config/parse';
+import { china as CN_PLATFORM, other as OTHER_PLATFORM } from '@/config/parse';
 import { t } from '@/locales';
 import { usePlayerStore, useSettingStore } from '@/store';
 import emitter from '@/utils/emitter';
@@ -99,7 +99,7 @@ const searchValue = ref('');
 const currentUrl = ref('about:blank');
 const webviewRef = ref<typeof WebviewView | null>(null);
 
-const platform = computed(() => (storeSetting.isChinaMainland ? CN_PLATFORM : OUTHER_PLATFORM));
+const platform = computed(() => (storeSetting.isChinaMainland ? CN_PLATFORM : OTHER_PLATFORM));
 
 const config = ref({
   default: {} as IModels['analyze'],

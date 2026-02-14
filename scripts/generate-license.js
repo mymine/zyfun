@@ -91,7 +91,7 @@ const IGNORED_PACKAGES = new Set([
   'electron',
   'electronmon',
 
-  // outher
+  // other
   'depcheck',
   'eslint',
   'eslint-config-prettier',

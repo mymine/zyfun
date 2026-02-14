@@ -3,5 +3,5 @@ export enum WINDOW_NAME {
   PLAYER = 'player',
   SNIFFER = 'sniffer',
   BROWSER = 'browser',
-  OUTHER = 'outher',
+  OTHER = 'other',
 }
