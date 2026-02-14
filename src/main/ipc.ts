@@ -26,7 +26,7 @@ import type { INotification } from '@shared/config/notification';
 import type { IProxyType } from '@shared/config/setting';
 import { PROXY_TYPE } from '@shared/config/setting';
 import type { IShortcutConfig, IShortcutType } from '@shared/config/shortcut';
-import { WINDOW_NAME } from '@shared/config/windowName';
+import { WINDOW_NAME } from '@shared/config/window';
 import type { ILang } from '@shared/locales';
 import { isExternal, isHttp, isPositiveFiniteNumber } from '@shared/modules/validate';
 import type { ProxyConfig } from 'electron';

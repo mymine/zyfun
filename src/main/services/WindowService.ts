@@ -9,7 +9,7 @@ import { isDev, isLinux, isMacOS, isPackaged, isWindows } from '@main/utils/syst
 import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo';
 import { IPC_CHANNEL } from '@shared/config/ipcChannel';
 import { LOG_MODULE } from '@shared/config/logger';
-import { WINDOW_NAME } from '@shared/config/windowName';
+import { WINDOW_NAME } from '@shared/config/window';
 import { convertUriToStandard, ELECTRON_TAG, isLocalhostURI, UNSAFE_HEADERS } from '@shared/modules/headers';
 import { isUndefined } from '@shared/modules/validate';
 import type { BrowserWindowConstructorOptions } from 'electron';
