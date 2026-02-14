@@ -27,6 +27,7 @@ export enum IPC_CHANNEL {
   // change
   CHANGE_THEME = 'change:theme',
   CHANGE_LANG = 'change:lang',
+  CHANGE_ZOOM = 'change:zoom',
 
   // event
   THEME_UPDATED = 'theme:updated',

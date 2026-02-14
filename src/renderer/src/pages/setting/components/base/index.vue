@@ -32,9 +32,23 @@
             :min="5000"
             :max="1000 * 60"
             :style="{ width: '296px' }"
-            @change="handleNetTimeout"
+            @blur="onTimeoutBlur"
           />
           <span class="title" @click="handleResetConf('timeout')">{{ $t('common.reset') }}</span>
+        </t-space>
+      </t-form-item>
+      <t-form-item :label="$t('pages.setting.base.zoom')" name="zoom">
+        <t-space align="center">
+          <t-input-number
+            v-model="formData.zoom"
+            theme="column"
+            :min="0.5"
+            :max="2"
+            :step="0.1"
+            :style="{ width: '296px' }"
+            @blur="onZoomBlur"
+          />
+          <span class="title" @click="handleResetConf('zoom')">{{ $t('common.reset') }}</span>
         </t-space>
       </t-form-item>
       <t-form-item :label="$t('pages.setting.base.hot')" name="hot">
@@ -322,6 +336,7 @@ watch(
     timeout: formData.value.timeout,
     debug: formData.value.debug,
     bossKey: formData.value.bossKey,
+    zoom: formData.value.zoom,
   }),
   (newVal, oldVal) => {
     const patch = pickBy(
@@ -397,9 +412,14 @@ const sourceSettingConf = async (val: ISetting) => {
   await sourceSetting(val);
 };
 
-const handleNetTimeout = (val: number) => {
+const onTimeoutBlur = (val: number) => {
   const timeout = isPositiveFiniteNumber(val) ? (val < 5000 || val > 60000 ? 5000 : val) : 5000;
   formData.value.timeout = timeout;
+};
+
+const onZoomBlur = (val: number) => {
+  const zoom = isPositiveFiniteNumber(val) ? (val < 0.5 || val > 2 ? 1 : Number(val.toFixed(1))) : 1;
+  formData.value.zoom = zoom;
 };
 
 const handleReboot = () => {
@@ -444,6 +464,7 @@ const handleResetConf = (type: string) => {
     'live.epg': 'https://epg.112114.eu.org/?ch={name}&date={date}',
     'live.logo': 'https://epg.112114.eu.org/logo/{name}.png',
     timeout: 10000,
+    zoom: 1,
   };
 
   if (Object.hasOwn(defaultMap, type)) {

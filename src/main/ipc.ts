@@ -176,6 +176,36 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
     trayService.updateTray(true);
   });
 
+  ipcMain.handle(IPC_CHANNEL.CHANGE_ZOOM, (_, zoom: number) => {
+    if (!isPositiveFiniteNumber(zoom)) return;
+
+    const windows = windowService.getAllWindows();
+    if (windows.length === 0) return;
+
+    const newZoom = Number(zoom.toFixed(1));
+    if (newZoom < 0.5 || newZoom > 2.0) return;
+
+    windows.forEach((win) => {
+      const currentZoom = win.webContents.getZoomFactor();
+
+      const [currentWidth, currentHeight] = win.getSize();
+      // const [currentWidth, currentHeight] = win.getContentSize();
+
+      const baseWidth = currentWidth / currentZoom;
+      const baseHeight = currentHeight / currentZoom;
+
+      const newWidth = Math.round(baseWidth * newZoom);
+      const newHeight = Math.round(baseHeight * newZoom);
+
+      const windowName = windowService.getWindowName(win)!;
+      const minSize = windowService.getWindowSize(windowName, 'min');
+
+      win.setMinimumSize(minSize.width, minSize.height);
+      win.setSize(newWidth, newHeight);
+      win.webContents.setZoomFactor(newZoom);
+    });
+  });
+
   // file
   ipcMain.handle(IPC_CHANNEL.FILE_SELECT_FOLDER_DIALOG, (_, options?: Electron.OpenDialogOptions) => {
     return fileStorage.selectFolderDialog(options);

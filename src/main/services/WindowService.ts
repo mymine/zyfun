@@ -9,7 +9,8 @@ import { isDev, isLinux, isMacOS, isPackaged, isWindows } from '@main/utils/syst
 import { titleBarOverlayDark, titleBarOverlayLight } from '@shared/config/appinfo';
 import { IPC_CHANNEL } from '@shared/config/ipcChannel';
 import { LOG_MODULE } from '@shared/config/logger';
-import { WINDOW_NAME } from '@shared/config/window';
+import type { ISize } from '@shared/config/window';
+import { WINDOW_NAME, WINDOW_SIZE } from '@shared/config/window';
 import { convertUriToStandard, ELECTRON_TAG, isLocalhostURI, UNSAFE_HEADERS } from '@shared/modules/headers';
 import { isUndefined } from '@shared/modules/validate';
 import type { BrowserWindowConstructorOptions } from 'electron';
@@ -34,6 +35,22 @@ export class WindowService {
       WindowService.instance = new WindowService();
     }
     return WindowService.instance;
+  }
+
+  public computedSize(size: number): number {
+    return Math.ceil(size * configManager.zoom);
+  }
+
+  public getWindowSize(name: string, type: 'default' | 'min' = 'default', computed: boolean = true): ISize {
+    const config = WINDOW_SIZE[name] ?? WINDOW_SIZE[WINDOW_NAME.OTHER];
+    const size = config[type];
+
+    if (!computed) return { ...size };
+
+    return {
+      width: this.computedSize(size.width),
+      height: this.computedSize(size.height),
+    };
   }
 
   public getAllNames(): string[] {
@@ -536,8 +553,8 @@ export class WindowService {
     mainWindow = new BrowserWindow(
       merge(
         {
-          width: 960,
-          height: 600,
+          width: WINDOW_SIZE[WINDOW_NAME.OTHER].default.width,
+          height: WINDOW_SIZE[WINDOW_NAME.OTHER].default.height,
           show: false,
           autoHideMenuBar: true,
           transparent: false,
@@ -576,22 +593,24 @@ export class WindowService {
   }
 
   public createMainWindow(): BrowserWindow {
+    const windowName = WINDOW_NAME.MAIN;
+
     const mainWindowState = windowStateKeeper({
       path: APP_DATABASE_PATH,
-      file: `${WINDOW_NAME.MAIN}-window-state.json`,
-      defaultWidth: 1000,
-      defaultHeight: 640,
+      file: `${windowName}-window-state.json`,
+      defaultWidth: this.getWindowSize(windowName, 'default').width,
+      defaultHeight: this.getWindowSize(windowName, 'default').height,
       fullScreen: false,
       maximize: false,
     });
 
-    const mainWindow = this.createWindow(WINDOW_NAME.MAIN, {
+    const mainWindow = this.createWindow(windowName, {
       x: mainWindowState.x,
       y: mainWindowState.y,
       width: mainWindowState.width,
       height: mainWindowState.height,
-      minWidth: 1000,
-      minHeight: 640,
+      minWidth: this.getWindowSize(windowName, 'min').width,
+      minHeight: this.getWindowSize(windowName, 'min').height,
       show: false,
       autoHideMenuBar: true,
       transparent: false,
@@ -633,22 +652,24 @@ export class WindowService {
   }
 
   public createPlayerWindow(): BrowserWindow {
+    const windowName = WINDOW_NAME.PLAYER;
+
     const mainWindowState = windowStateKeeper({
       path: APP_DATABASE_PATH,
-      file: `${WINDOW_NAME.PLAYER}-window-state.json`,
-      defaultWidth: 960,
-      defaultHeight: 600,
+      file: `${windowName}-window-state.json`,
+      defaultWidth: this.getWindowSize(windowName, 'default').width,
+      defaultHeight: this.getWindowSize(windowName, 'default').height,
       fullScreen: false,
       maximize: false,
     });
 
-    const mainWindow = this.createWindow(WINDOW_NAME.PLAYER, {
+    const mainWindow = this.createWindow(windowName, {
       x: mainWindowState.x,
       y: mainWindowState.y,
       width: mainWindowState.width,
       height: mainWindowState.height,
-      minWidth: 528,
-      minHeight: 297,
+      minWidth: this.getWindowSize(windowName, 'min').width,
+      minHeight: this.getWindowSize(windowName, 'min').height,
       show: false,
       autoHideMenuBar: true,
       transparent: false,
@@ -705,18 +726,24 @@ export class WindowService {
   }
 
   public createBrowserWindow(): BrowserWindow {
+    const windowName = WINDOW_NAME.BROWSER;
+
     const mainWindowState = windowStateKeeper({
       path: APP_DATABASE_PATH,
-      file: `${WINDOW_NAME.BROWSER}-window-state.json`,
-      defaultWidth: 1000,
-      defaultHeight: 640,
+      file: `${windowName}-window-state.json`,
+      defaultWidth: this.getWindowSize(windowName, 'default').width,
+      defaultHeight: this.getWindowSize(windowName, 'default').height,
       fullScreen: false,
       maximize: false,
     });
 
-    const mainWindow = this.createWindow(WINDOW_NAME.BROWSER, {
-      minWidth: 1000,
-      minHeight: 640,
+    const mainWindow = this.createWindow(windowName, {
+      x: mainWindowState.x,
+      y: mainWindowState.y,
+      width: mainWindowState.width,
+      height: mainWindowState.height,
+      minWidth: this.getWindowSize(windowName, 'min').width,
+      minHeight: this.getWindowSize(windowName, 'min').height,
       show: false,
       autoHideMenuBar: true,
       transparent: false,

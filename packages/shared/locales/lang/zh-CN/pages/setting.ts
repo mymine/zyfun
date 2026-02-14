@@ -10,6 +10,7 @@ export default {
   base: {
     bossKey: '老板键',
     timeout: '超时',
+    zoom: '缩放',
     hot: '热榜',
     site: {
       title: '站点',

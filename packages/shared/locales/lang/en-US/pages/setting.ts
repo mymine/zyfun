@@ -10,6 +10,7 @@ export default {
   base: {
     bossKey: 'BossKey',
     timeout: 'Timeout',
+    zoom: 'Zoom',
     hot: 'Hot',
     site: {
       title: 'Site',
