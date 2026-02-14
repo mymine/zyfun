@@ -266,9 +266,7 @@ const api: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     `/${API_PREFIX}/proxy`,
     { schema: getProxySchema },
-    async (
-      req: FastifyRequest<{ Querystring: { uuid: string; do: 'js' | 'py'; url: string } & Record<string, any> }>,
-    ) => {
+    async (req: FastifyRequest<{ Querystring: { uuid: string; do: string; url: string } & Record<string, any> }>) => {
       const { uuid, ...args } = req.query || {};
 
       const adapter = await prepare(uuid);

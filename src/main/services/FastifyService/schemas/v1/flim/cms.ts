@@ -256,7 +256,7 @@ export const getProxySchema = {
   querystring: Type.Object(
     {
       uuid: Type.String({ format: 'uuid', description: 'cms uuid' }),
-      do: Type.String({ enum: ['js', 'py'], description: 'proxy type' }),
+      do: Type.String({ description: 'proxy type' }),
       url: Type.String({ format: 'uri', description: 'proxy url' }),
     },
     { additionalProperties: true },
