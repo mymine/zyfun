@@ -2,7 +2,7 @@
 
 > All notable changes to this project will be documented in this file.
 
-## 3.4.2
+## 3.4.2 (2026-02-15)
 
 - 特性: 支持配置缩放
 - 修复: 设置-基础配置 无效超时参数检测不符合逻辑(改为失焦校验)
