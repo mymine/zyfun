@@ -1,6 +1,6 @@
 {
   "name": "zyfun",
-  "version": "3.4.2-rc4",
+  "version": "3.4.2",
   "private": true,
   "description": "Discover the world by watching movies.",
   "main": "./out/main/index.js",
@@ -208,7 +208,7 @@
     "prettier-plugin-sort-json": "4.2.0",
     "protobufjs": "^8.0.0",
     "proxy-agent": "^6.5.0",
-    "qs": "^6.14.2",
+    "qs": "^6.15.0",
     "rollup-plugin-visualizer": "^6.0.5",
     "semver": "^7.7.4",
     "sm-crypto-v2": "^1.15.1",
