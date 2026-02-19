@@ -403,7 +403,7 @@ sudo yum install xdg-utils
 
 以下是您可以做出贡献的一些方式：
 
-- **贡献代码**：开发新功能或优化现有代码 <[开发文档](docs/Develop.md)>
+- **贡献代码**：开发新功能或优化现有代码 <[开发文档](docs/Develop.md)> <[Mcp文档](docs/Mcp.md)>
 - **修复错误**：提交您发现的任何错误的修复 <[提交规范](docs/Conventional_Commits.md)>
 - **维护问题**：帮助管理GitHub问题
 - **产品设计**：参与设计讨论

@@ -2,6 +2,13 @@
 
 > All notable changes to this project will be documented in this file.
 
+## 3.4.3
+
+- 特性: vscode增加mcp工具(swagger-mcp|@debugelectron/debug-electron-mcp)
+- 变动: 依赖库升级
+
+[View on GitHub](https://github.com/Hiram-Wong/ZyPlayer/releases/tag/v3.4.3)
+
 ## 3.4.2 (2026-02-15)
 
 - 特性: 支持配置缩放
