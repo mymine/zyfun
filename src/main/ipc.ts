@@ -179,29 +179,47 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   ipcMain.handle(IPC_CHANNEL.CHANGE_ZOOM, (_, zoom: number) => {
     if (!isPositiveFiniteNumber(zoom)) return;
 
+    const newZoom = Math.min(Math.max(Number(zoom.toFixed(1)), 0.5), 2.0);
+
     const windows = windowService.getAllWindows();
     if (windows.length === 0) return;
 
-    const newZoom = Number(zoom.toFixed(1));
-    if (newZoom < 0.5 || newZoom > 2.0) return;
-
     windows.forEach((win) => {
+      if (win.isDestroyed()) return;
+
       const currentZoom = win.webContents.getZoomFactor();
+      if (Math.abs(newZoom - currentZoom) < 0.01) return;
+
+      const windowName = windowService.getWindowName(win)!;
 
       const [currentWidth, currentHeight] = win.getSize();
-      // const [currentWidth, currentHeight] = win.getContentSize();
-
       const baseWidth = currentWidth / currentZoom;
       const baseHeight = currentHeight / currentZoom;
 
-      const newWidth = Math.round(baseWidth * newZoom);
-      const newHeight = Math.round(baseHeight * newZoom);
+      const calculatedSize = {
+        width: Math.round(baseWidth * newZoom),
+        height: Math.round(baseHeight * newZoom),
+      };
 
-      const windowName = windowService.getWindowName(win)!;
-      const minSize = windowService.getWindowSize(windowName, 'min');
+      const minConfSize = windowService.getWindowSize(windowName, 'min', false);
+      const minSize = {
+        width: Math.round(minConfSize.width * newZoom),
+        height: Math.round(minConfSize.height * newZoom),
+      };
+
+      const defaultConfSize = windowService.getWindowSize(windowName, 'default', false);
+      const defaultSize = {
+        width: Math.round(defaultConfSize.width * newZoom),
+        height: Math.round(defaultConfSize.height * newZoom),
+      };
+
+      const finalSize = {
+        width: calculatedSize.width < minSize.width ? defaultSize.width : calculatedSize.width,
+        height: calculatedSize.height < minSize.height ? defaultSize.height : calculatedSize.height,
+      };
 
       win.setMinimumSize(minSize.width, minSize.height);
-      win.setSize(newWidth, newHeight);
+      win.setSize(finalSize.width, finalSize.height);
       win.webContents.setZoomFactor(newZoom);
     });
   });

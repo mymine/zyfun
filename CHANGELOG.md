@@ -5,6 +5,7 @@
 ## 3.4.3
 
 - 特性: vscode增加mcp工具(swagger-mcp|@debugelectron/debug-electron-mcp)
+- 修复: 缩放 尺寸计算错误; 数值组件改为滑块; 比例最大值和最小值
 - 变动: 依赖库升级
 
 [View on GitHub](https://github.com/Hiram-Wong/ZyPlayer/releases/tag/v3.4.3)

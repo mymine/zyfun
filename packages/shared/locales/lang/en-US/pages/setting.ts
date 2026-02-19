@@ -10,7 +10,14 @@ export default {
   base: {
     bossKey: 'BossKey',
     timeout: 'Timeout',
-    zoom: 'Zoom',
+    zoom: {
+      title: 'Zoom',
+      levelMap: {
+        small: 'Small',
+        standard: 'Standard',
+        large: 'Large',
+      },
+    },
     hot: 'Hot',
     site: {
       title: 'Site',

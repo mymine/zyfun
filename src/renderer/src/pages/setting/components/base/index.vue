@@ -37,16 +37,25 @@
           <span class="title" @click="handleResetConf('timeout')">{{ $t('common.reset') }}</span>
         </t-space>
       </t-form-item>
-      <t-form-item :label="$t('pages.setting.base.zoom')" name="zoom">
+      <t-form-item :label="$t('pages.setting.base.zoom.title')" name="zoom">
         <t-space align="center">
-          <t-input-number
-            v-model="formData.zoom"
-            theme="column"
-            :min="0.5"
-            :max="2"
-            :step="0.1"
+          <!-- single-binding values are modified by the change-end event -->
+          <t-slider
+            :model-value="formData.zoom"
+            :show-tooltip="true"
+            :max="1.8"
+            :min="0.8"
+            :step="0.2"
+            :marks="{
+              0.8: t('pages.setting.base.zoom.levelMap.small'),
+              1: t('pages.setting.base.zoom.levelMap.standard'),
+              1.2: '',
+              1.4: '',
+              1.6: '',
+              1.8: t('pages.setting.base.zoom.levelMap.large'),
+            }"
             :style="{ width: '296px' }"
-            @blur="onZoomBlur"
+            @change-end="onZoomBlur"
           />
           <span class="title" @click="handleResetConf('zoom')">{{ $t('common.reset') }}</span>
         </t-space>
@@ -418,7 +427,7 @@ const onTimeoutBlur = (val: number) => {
 };
 
 const onZoomBlur = (val: number) => {
-  const zoom = isPositiveFiniteNumber(val) ? (val < 0.5 || val > 2 ? 1 : Number(val.toFixed(1))) : 1;
+  const zoom = isPositiveFiniteNumber(val) ? (val < 0.8 || val > 1.8 ? 1 : Number(val.toFixed(1))) : 1;
   formData.value.zoom = zoom;
 };
 
