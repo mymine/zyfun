@@ -34,6 +34,7 @@ export enum IPC_CHANNEL {
   LANG_UPDATED = 'lang:updated',
   FULLSCREEN_UPDATED = 'fullscreen:updated',
   URI_BLOCKED = 'uri:blocked',
+  ZOOM_UPDATED = 'zoom:updated',
 
   // file
   FILE_SELECT_FOLDER_DIALOG = 'file:select-folder-dialog',

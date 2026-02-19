@@ -395,6 +395,7 @@ onActivated(() => {
 
 const setup = () => {
   getSetting();
+  onIpcListener();
 };
 
 const reloadConfig = async (eventData: { source: string; data: any }) => {
@@ -519,6 +520,12 @@ const onDialogSubmit = (type: string, doc: any) => {
       break;
     }
   }
+};
+
+const onIpcListener = () => {
+  window.electron.ipcRenderer.on(IPC_CHANNEL.ZOOM_UPDATED, (_, zoom: number) => {
+    formData.value.zoom = zoom;
+  });
 };
 </script>
 <style lang="less" scoped>

@@ -12,7 +12,7 @@ import { LOG_MODULE } from '@shared/config/logger';
 import type { ISize } from '@shared/config/window';
 import { WINDOW_NAME, WINDOW_SIZE } from '@shared/config/window';
 import { convertUriToStandard, ELECTRON_TAG, isLocalhostURI, UNSAFE_HEADERS } from '@shared/modules/headers';
-import { isUndefined } from '@shared/modules/validate';
+import { isPositiveFiniteNumber, isUndefined } from '@shared/modules/validate';
 import type { BrowserWindowConstructorOptions } from 'electron';
 import { app, BrowserWindow, ipcMain, nativeImage, nativeTheme, shell } from 'electron';
 import windowStateKeeper from 'electron-window-state';
@@ -83,6 +83,60 @@ export class WindowService {
     }
 
     return null;
+  }
+
+  public setZoomWindow(window: string | BrowserWindow, zoom: number) {
+    if (!isPositiveFiniteNumber(zoom)) {
+      return;
+    }
+
+    const mainWindow = this.getWindow(window);
+
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return;
+    }
+
+    const newZoom = Math.min(Math.max(Number(zoom.toFixed(1)), 0.5), 2.0);
+
+    const currentZoom = mainWindow.webContents.getZoomFactor();
+    if (Math.abs(newZoom - currentZoom) < 0.01) return;
+
+    const windowName = this.getWindowName(mainWindow)!;
+
+    const [currentWidth, currentHeight] = mainWindow.getSize();
+    const baseWidth = currentWidth / currentZoom;
+    const baseHeight = currentHeight / currentZoom;
+
+    const calculatedSize = {
+      width: Math.round(baseWidth * newZoom),
+      height: Math.round(baseHeight * newZoom),
+    };
+
+    const minConfSize = this.getWindowSize(windowName, 'min', false);
+    const minSize = {
+      width: Math.round(minConfSize.width * newZoom),
+      height: Math.round(minConfSize.height * newZoom),
+    };
+
+    const defaultConfSize = this.getWindowSize(windowName, 'default', false);
+    const defaultSize = {
+      width: Math.round(defaultConfSize.width * newZoom),
+      height: Math.round(defaultConfSize.height * newZoom),
+    };
+
+    const finalSize = {
+      width: calculatedSize.width < minSize.width ? defaultSize.width : calculatedSize.width,
+      height: calculatedSize.height < minSize.height ? defaultSize.height : calculatedSize.height,
+    };
+
+    mainWindow.setMinimumSize(minSize.width, minSize.height);
+    mainWindow.setSize(finalSize.width, finalSize.height);
+    mainWindow.webContents.setZoomFactor(newZoom);
+  }
+
+  public setZoomWindows(zoom: number) {
+    const windows = this.getAllWindows();
+    windows.forEach((win) => this.setZoomWindow(win, zoom));
   }
 
   public showWindow(window: string | BrowserWindow) {
