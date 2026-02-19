@@ -299,7 +299,7 @@ export class WindowService {
 
   private setupWindowEvents(mainWindow: BrowserWindow) {
     mainWindow.once('ready-to-show', () => {
-      // mainWindow.webContents.setZoomFactor(configManager.zoom);
+      mainWindow.webContents.setZoomFactor(configManager.zoom);
 
       // [mac]hacky-fix: miniWindow set visibleOnFullScreen:true will cause dock icon disappeared
       app.dock?.show();
